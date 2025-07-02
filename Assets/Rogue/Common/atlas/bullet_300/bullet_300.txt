@@ -1,0 +1,18 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# https://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:deef61dd6b0285480ed87df10c79b8ae:8841fa9b16731983854eb36aabaa1d13:4ccabc92d6dedd156f28d0625aa4b69c$
+#
+:format=40300
+:texture=bullet_300.png
+:size=92x36
+:pivotpoints=enabled
+:borders=disabled
+:alphahandling=ClearTransparentPixels
+
+bullet_2_0;36;9;26;26; 0.5;0.5; 0;0;0;0
+bullet_2_1;64;10;24;25; 0.5;0.5; 0;0;0;0
+bullet_2_2;1;2;33;33; 0.5;0.5; 0;0;0;0

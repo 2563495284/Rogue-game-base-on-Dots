@@ -1,0 +1,23 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# https://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:57aa676fdc888f3e84606962ee3494b2:a15d8e3354098e59a3b9ac476d6d8180:a913ebd8094c6ddf35a99924a86e1075$
+#
+:format=40300
+:texture=blue_300.png
+:size=364x156
+:pivotpoints=enabled
+:borders=disabled
+:alphahandling=ClearTransparentPixels
+
+blue_300-idle_0;274;30;89;60; 0.5;0.44999999999999996; 0;0;0;0
+blue_300-idle_1;183;20;89;65; 0.5;0.5538461538461539; 0;0;0;0
+blue_300-idle_2;92;10;89;65; 0.5;0.49230769230769234; 0;0;0;0
+blue_300-idle_3;274;92;89;63; 0.5;0.39682539682539686; 0;0;0;0
+blue_300-idle_4;1;4;89;67; 0.5;0.5074626865671642; 0;0;0;0
+blue_300-idle_5;92;77;89;78; 0.5;0.6282051282051282; 0;0;0;0
+blue_300-idle_6;1;73;89;82; 0.5;0.5975609756097561; 0;0;0;0
+blue_300-idle_7;183;87;89;68; 0.5;0.4411764705882353; 0;0;0;0

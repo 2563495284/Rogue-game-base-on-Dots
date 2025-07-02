@@ -1,0 +1,23 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# https://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:0cb6859997510cd5c0fc1875630b5f06:350e714d62371c8ce5154a10616af61b:83fdd48b19afd7651f2ee2b0bd7e217c$
+#
+:format=40300
+:texture=yellow_100.png
+:size=172x188
+:pivotpoints=enabled
+:borders=disabled
+:alphahandling=ClearTransparentPixels
+
+yellow_600-idle_0;86;120;83;67; 0.5;0.3731343283582089; 0;0;0;0
+yellow_600-idle_1;86;58;83;60; 0.5;0.41666666666666663; 0;0;0;0
+yellow_600-idle_2;86;1;83;55; 0.5;0.4545454545454546; 0;0;0;0
+yellow_600-idle_3;1;120;83;67; 0.5;0.3731343283582089; 0;0;0;0
+yellow_600-idle_4;86;58;83;60; 0.5;0.41666666666666663; 0;0;0;0
+yellow_600-idle_5;1;58;83;60; 0.5;0.41666666666666663; 0;0;0;0
+yellow_600-idle_6;1;1;83;55; 0.5;0.4545454545454546; 0;0;0;0
+yellow_600-idle_7;86;58;83;60; 0.5;0.41666666666666663; 0;0;0;0

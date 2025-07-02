@@ -1,0 +1,23 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# https://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:0e405390d8269b61557707e1a62c6ec9:30562589ae9b4ff3f6ce84c7cb99f3ea:c7d1efd99dc1c562d94c80a375e74cb4$
+#
+:format=40300
+:texture=red_200.png
+:size=384x156
+:pivotpoints=enabled
+:borders=disabled
+:alphahandling=ClearTransparentPixels
+
+red_200-idle_0;292;1;91;76; 0.5;0.3157894736842105; 0;0;0;0
+red_200-idle_1;100;1;97;76; 0.5;0.3157894736842105; 0;0;0;0
+red_200-idle_2;107;79;104;76; 0.5048076923076923;0.3157894736842105; 0;0;0;0
+red_200-idle_3;213;79;97;76; 0.5;0.3157894736842105; 0;0;0;0
+red_200-idle_4;199;1;91;76; 0.5;0.3157894736842105; 0;0;0;0
+red_200-idle_5;1;1;97;76; 0.5;0.3157894736842105; 0;0;0;0
+red_200-idle_6;1;79;104;76; 0.5048076923076923;0.3157894736842105; 0;0;0;0
+red_200-idle_7;1;1;97;76; 0.5;0.3157894736842105; 0;0;0;0

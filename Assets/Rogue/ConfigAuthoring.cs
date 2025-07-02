@@ -1,0 +1,50 @@
+using Unity.Entities;
+using Unity.Mathematics;
+using UnityEngine;
+
+namespace Rogue
+{
+    public class ConfigAuthoring : MonoBehaviour
+    {
+        [Header("Enemy")]
+        public int NumEnemies;
+        public float EnemySpawnAreaSize;
+        public float EnemyMoveSpeed;
+        public float EnemyDirectionChangeInterval;
+        public GameObject EnemyPrefabGO;
+        public GameObject EnemyAnimatedPrefabGO;
+
+        class Baker : Baker<ConfigAuthoring>
+        {
+            public override void Bake(ConfigAuthoring authoring)
+            {
+                var entity = GetEntity(authoring, TransformUsageFlags.None);
+                AddComponent(entity, new Config
+                {
+                    NumEnemies = authoring.NumEnemies,
+                    EnemyPrefab = GetEntity(authoring.EnemyPrefabGO, TransformUsageFlags.Dynamic),
+                    EnemySpawnAreaSize = authoring.EnemySpawnAreaSize,
+                    EnemyMoveSpeed = authoring.EnemyMoveSpeed,
+                    EnemyDirectionChangeInterval = authoring.EnemyDirectionChangeInterval
+                });
+                var configManaged = new ConfigManaged();
+                configManaged.EnemyAnimatedPrefabGO = authoring.EnemyAnimatedPrefabGO;
+                AddComponentObject(entity, configManaged);
+            }
+        }
+    }
+
+    public struct Config : IComponentData
+    {
+        public int NumEnemies;
+        public Entity EnemyPrefab;
+        public float EnemySpawnAreaSize;
+        public float EnemyMoveSpeed;
+        public float EnemyDirectionChangeInterval;
+    }
+
+    public class ConfigManaged : IComponentData
+    {
+        public GameObject EnemyAnimatedPrefabGO;
+    }
+}

@@ -1,0 +1,19 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# https://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:1af0df443ee89d90aee975ba9534394c:5d12da016f2a78178281c111c4231ed6:7cbd6687200f4e557fbc3445624250c9$
+#
+:format=40300
+:texture=arms_301.png
+:size=316x112
+:pivotpoints=enabled
+:borders=disabled
+:alphahandling=ClearTransparentPixels
+
+arms_301-idle_0;1;2;77;109; 0.5;0.5; 0;0;0;0
+arms_301-idle_1;159;4;77;107; 0.5;0.5093457943925234; 0;0;0;0
+arms_301-idle_2;238;7;77;104; 0.5;0.5240384615384616; 0;0;0;0
+arms_301-idle_3;80;4;77;107; 0.5;0.5093457943925234; 0;0;0;0

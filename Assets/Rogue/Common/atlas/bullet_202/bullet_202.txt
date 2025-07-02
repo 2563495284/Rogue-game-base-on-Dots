@@ -1,0 +1,22 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# https://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:1c90182e33a33e4bffe3bd69cfb59de3:b0c806981d42a05977b006d96116cefd:c968014103d1d38265350ea12cf043ce$
+#
+:format=40300
+:texture=bullet_202.png
+:size=792x176
+:pivotpoints=enabled
+:borders=disabled
+:alphahandling=ClearTransparentPixels
+
+bullet_8_0;633;91;156;84; 0.5833333333333334;0.47619047619047616; 0;0;0;0
+bullet_8_1;462;5;170;84; 0.5470588235294118;0.47619047619047616; 0;0;0;0
+bullet_8_2;244;3;216;86; 0.37037037037037035;0.4883720930232558; 0;0;0;0
+bullet_8_3;245;91;242;84; 0.3512396694214876;0.47619047619047616; 0;0;0;0
+bullet_8_4;1;91;242;84; 0.3512396694214876;0.47619047619047616; 0;0;0;0
+bullet_8_5;1;5;241;84; 0.34854771784232363;0.47619047619047616; 0;0;0;0
+bullet_8_6;462;5;170;84; 0.5470588235294118;0.47619047619047616; 0;0;0;0
