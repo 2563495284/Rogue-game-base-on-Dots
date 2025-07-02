@@ -6,7 +6,9 @@ namespace Rogue
     public class ExecuteAuthoring : MonoBehaviour
     {
         public bool SpawnSystem;
-        public bool AnimationSystem;
+        public bool EnemiesAnimationSystem;
+        public bool PlayerWeaponSystem;
+
         class Baker : Baker<ExecuteAuthoring>
         {
             public override void Bake(ExecuteAuthoring authoring)
@@ -17,9 +19,14 @@ namespace Rogue
                     AddComponent<ExecuteSpawn>(entity);
                 }
 
-                if (authoring.AnimationSystem)
+                if (authoring.EnemiesAnimationSystem)
                 {
-                    AddComponent<ExecuteAnimation>(entity);
+                    AddComponent<ExecuteEnemiesAnimation>(entity);
+                }
+
+                if (authoring.PlayerWeaponSystem)
+                {
+                    AddComponent<ExecutePlayerWeapon>(entity);
                 }
             }
         }
@@ -29,7 +36,11 @@ namespace Rogue
     {
     }
 
-    public struct ExecuteAnimation : IComponentData
+    public struct ExecuteEnemiesAnimation : IComponentData
+    {
+    }
+
+    public struct ExecutePlayerWeapon : IComponentData
     {
     }
 }

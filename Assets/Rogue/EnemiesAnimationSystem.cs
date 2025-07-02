@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Rogue
 {
-    public partial struct AnimationSystem : ISystem
+    public partial struct EnemiesAnimationSystem : ISystem
     {
         private bool isInitialized;
 
@@ -15,7 +15,7 @@ namespace Rogue
         {
             state.RequireForUpdate<Config>();
             state.RequireForUpdate<Enemy>();
-            state.RequireForUpdate<ExecuteAnimation>();
+            state.RequireForUpdate<ExecuteEnemiesAnimation>();
         }
 
         // Because this update accesses managed objects, it cannot be Burst compiled,

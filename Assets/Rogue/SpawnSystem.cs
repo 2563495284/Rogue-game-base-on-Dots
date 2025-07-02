@@ -22,6 +22,14 @@ namespace Rogue
             var config = SystemAPI.GetSingleton<Config>();
             var rand = new Random(123);
 
+            //spawn player
+            {
+                var playerEntity = state.EntityManager.Instantiate(config.PlayerPrefab);
+                var playerTransform = state.EntityManager.GetComponentData<LocalTransform>(playerEntity);
+                playerTransform.Position = new float3(0, 0, 0);
+                state.EntityManager.SetComponentData(playerEntity, playerTransform);
+            }
+
             // spawn enemies
             {
                 var enemyTransform = state.EntityManager.GetComponentData<LocalTransform>(config.EnemyPrefab);

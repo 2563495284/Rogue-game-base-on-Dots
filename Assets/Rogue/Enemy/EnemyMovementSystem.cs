@@ -90,12 +90,12 @@ namespace Rogue
                 // 更新位置
                 currentTransform.Position = newPosition;
 
-                // // 根据移动方向调整朝向（绕z轴旋转）
-                // if (math.lengthsq(currentMovement.Direction) > 0.01f)
-                // {
-                //     var angle = math.atan2(currentMovement.Direction.y, currentMovement.Direction.x);
-                //     currentTransform.Rotation = quaternion.RotateZ(angle);
-                // }
+                // 根据移动方向调整朝向（绕z轴旋转）
+                if (math.lengthsq(currentMovement.Direction) > 0.01f)
+                {
+                    var angle = math.atan2(currentMovement.Direction.y, currentMovement.Direction.x);
+                    currentTransform.Rotation = quaternion.RotateZ(angle);
+                }
 
                 // 更新组件
                 transform.ValueRW = currentTransform;

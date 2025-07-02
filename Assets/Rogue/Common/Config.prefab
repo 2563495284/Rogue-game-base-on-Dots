@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 982c67e02951f4011b67fa98506a09b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumEnemies: 100
+  NumEnemies: 0
   EnemySpawnAreaSize: 10
   EnemyMoveSpeed: 0.5
   EnemyDirectionChangeInterval: 5
