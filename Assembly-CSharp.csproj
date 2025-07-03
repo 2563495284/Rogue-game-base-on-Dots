@@ -90,6 +90,7 @@
     <Compile Include="Assets/Kickball/Step 1/ObstacleSpawnerSystem.cs" />
     <Compile Include="Assets/Kickball/Step 3/BallMovementSystem.cs" />
     <Compile Include="Assets/Kickball/Step 3/BallSpawnerSystem.cs" />
+    <Compile Include="Assets/Rogue/Enemy/EnemyHealthBarCreator.cs" />
     <Compile Include="Assets/Firefighters/Step 3/LineSystem.cs" />
     <Compile Include="Assets/Kickball/Step 5/BallCarrySystem.cs" />
     <Compile Include="Assets/Rogue/Common/Weapon/Bullet/BulletAssetData.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Assets/Tornado/TornadoSpawnSystem.cs" />
     <Compile Include="Assets/Firefighters/Common/ExecuteAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 1/GroundCellAuthoring.cs" />
+    <Compile Include="Assets/Rogue/Enemy/EnemyHealthUISystem.cs" />
     <Compile Include="Assets/Kickball/Step 3/BallAuthoring.cs" />
     <Compile Include="Assets/Tornado/ConfigAuthoring.cs" />
     <Compile Include="Assets/Kickball/Common/ExecuteAuthoring.cs" />
