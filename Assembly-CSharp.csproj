@@ -80,6 +80,7 @@
     <Compile Include="Assets/Rogue/Player/PlayerMovementSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 1/BucketAuthoring.cs" />
     <Compile Include="Assets/Rogue/Player/PlayerAnimationSystem.cs" />
+    <Compile Include="Assets/Rogue/Player/Weapon/BulletLifetimeSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 1/PondAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 3/BucketSystem.cs" />
     <Compile Include="Assets/Kickball/Step 2/PlayerAuthoring.cs" />
@@ -127,8 +128,10 @@
     <Compile Include="Assets/Tornado/BuildingRenderSystem.cs" />
     <Compile Include="Assets/Tornado/CameraSystem.cs" />
     <Compile Include="Assets/Rogue/Player/PlayerController.cs" />
+    <Compile Include="Assets/Rogue/Player/Weapon/BulletController.cs" />
     <Compile Include="Assets/Firefighters/Step 2/HeatSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 1/BotAuthoring.cs" />
+    <Compile Include="Assets/Rogue/Player/Weapon/BulletMovementSystem.cs" />
     <Compile Include="Assets/Kickball/Step 2/PlayerSpawnerSystem.cs" />
     <Compile Include="Assets/Rogue/Components.cs" />
     <Compile Include="Assets/Firefighters/Step 1/Components.cs" />

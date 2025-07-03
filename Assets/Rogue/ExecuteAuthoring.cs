@@ -15,6 +15,10 @@ namespace Rogue
         public bool PlayerMovementSystem;
         public bool PlayerAnimationSystem;
 
+        [Header("Weapons")]
+        public bool BulletMovementSystem;
+        public bool BulletLifetimeSystem;
+
         class Baker : Baker<ExecuteAuthoring>
         {
             public override void Bake(ExecuteAuthoring authoring)
@@ -49,6 +53,16 @@ namespace Rogue
                 {
                     AddComponent<ExecutePlayerAnimation>(entity);
                 }
+
+                if (authoring.BulletMovementSystem)
+                {
+                    AddComponent<ExecuteBulletMovement>(entity);
+                }
+
+                if (authoring.BulletLifetimeSystem)
+                {
+                    AddComponent<ExecuteBulletLifetime>(entity);
+                }
             }
         }
     }
@@ -74,6 +88,14 @@ namespace Rogue
     }
 
     public struct ExecuteEnemyHealthUI : IComponentData
+    {
+    }
+
+    public struct ExecuteBulletMovement : IComponentData
+    {
+    }
+
+    public struct ExecuteBulletLifetime : IComponentData
     {
     }
 }

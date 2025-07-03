@@ -48,6 +48,7 @@ MonoBehaviour:
   PlayerPrefabGO: {fileID: 943049589341152679, guid: b35f64339c173944cbcb1848e1e0d8be, type: 3}
   PlayerAnimatedPrefabGO: {fileID: 7100645380113196838, guid: 6c9be4e421e0c5e4692b0a6d059bbe6a, type: 3}
   PlayerControllerGO: {fileID: 7100645380113196838, guid: 39b7c73342b7849608b4096b4cfc8e40, type: 3}
+  BulletPrefabGO: {fileID: 6163820735451155453, guid: de824f238d80e490b97605fbef228495, type: 3}
   NumEnemies: 10
   EnemySpawnAreaSize: 10
   EnemyMoveSpeed: 0.5
@@ -73,3 +74,5 @@ MonoBehaviour:
   PlayerWeaponSystem: 1
   PlayerMovementSystem: 1
   PlayerAnimationSystem: 1
+  BulletMovementSystem: 1
+  BulletLifetimeSystem: 1

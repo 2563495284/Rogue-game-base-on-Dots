@@ -16,6 +16,9 @@ MonoBehaviour:
   Id: 0
   BulletAnimId: 100
   BulletType: 0
+  damage: 0
+  criticalChance: 0
+  criticalDamage: 0
   Zoom: 1
   AtkBet: 1
   SpiltRadius: 5
@@ -26,7 +29,7 @@ MonoBehaviour:
   BulletCollisionR: 10
   BulletSpeed: 0
   BulletAcceleration: 0
-  BulletDuration: 0
+  BulletLifeTime: 10
   BulletDelay: 0
   BulletInterval: 0
   WavingAngle: 60

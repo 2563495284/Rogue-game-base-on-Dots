@@ -17,7 +17,7 @@ namespace Rogue
 
         private void OnEnable()
         {
-            // moveAction.Enable();
+            moveAction.Enable();
         }
 
         private void OnDisable()

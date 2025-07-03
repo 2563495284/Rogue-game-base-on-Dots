@@ -9,8 +9,10 @@ namespace Rogue
         [Header("Player")]
         public GameObject PlayerPrefabGO;
         public GameObject PlayerAnimatedPrefabGO;
-
         public GameObject PlayerControllerGO;
+
+        [Header("Weapons")]
+        public GameObject BulletPrefabGO;
 
         [Header("Enemy")]
         public int NumEnemies;
@@ -42,6 +44,7 @@ namespace Rogue
                 configManaged.EnemyHealthBarPrefabGO = authoring.EnemyHealthBarPrefabGO;
                 configManaged.PlayerAnimatedPrefabGO = authoring.PlayerAnimatedPrefabGO;
                 configManaged.PlayerControllerPrefabGO = authoring.PlayerControllerGO;
+                configManaged.BulletPrefabGO = authoring.BulletPrefabGO;
                 AddComponentObject(entity, configManaged);
             }
         }
@@ -68,5 +71,6 @@ namespace Rogue
         public GameObject EnemyHealthBarPrefabGO;
         public GameObject PlayerAnimatedPrefabGO;
         public GameObject PlayerControllerPrefabGO;
+        public GameObject BulletPrefabGO;
     }
 }

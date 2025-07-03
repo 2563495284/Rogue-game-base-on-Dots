@@ -28,6 +28,11 @@ namespace Rogue
                     BulletNum = authoring.WeaponAssetData.BulletNum,
                     TrajectoryNum = authoring.WeaponAssetData.TrajectoryNum,
                 });
+
+                // 添加武器冷却组件
+                var cooldown = new WeaponCooldown();
+                cooldown.StartCooldown(0f); // 初始可以立即射击
+                AddComponent(entity, cooldown);
             }
         }
     }

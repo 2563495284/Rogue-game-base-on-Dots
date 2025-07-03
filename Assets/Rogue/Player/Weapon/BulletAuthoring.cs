@@ -6,12 +6,38 @@ namespace Rogue
 {
     public class BulletAuthoring : MonoBehaviour
     {
+        [Header("子弹配置")]
+        public BulletAssetData bulletAssetData;
+
         private class Baker : Baker<BulletAuthoring>
         {
             public override void Bake(BulletAuthoring authoring)
             {
                 var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
                 AddComponent<Bullet>(entity);
+
+                // 添加子弹移动组件
+                AddComponent(entity, new BulletMovement
+                {
+                    Speed = authoring.bulletAssetData.BulletSpeed,
+                    Direction = float3.zero, // 将在发射时设置
+                    StartPosition = float3.zero
+                });
+
+                // 添加子弹生命周期组件
+                var bulletLifetime = new BulletLifetime();
+                bulletLifetime.Initialize(authoring.bulletAssetData.BulletLifeTime);
+                AddComponent(entity, bulletLifetime);
+
+                // 添加子弹伤害组件
+                AddComponent(entity, new BulletDamage
+                {
+                    Damage = authoring.bulletAssetData.damage,
+                    CriticalChance = authoring.bulletAssetData.criticalChance,
+                    CriticalDamage = authoring.bulletAssetData.criticalDamage,
+                    HasHit = false,
+                    Owner = Entity.Null // 将在发射时设置
+                });
             }
         }
     }

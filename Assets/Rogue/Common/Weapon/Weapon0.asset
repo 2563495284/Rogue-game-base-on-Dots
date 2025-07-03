@@ -23,6 +23,6 @@ MonoBehaviour:
   Attribute: 0
   CriticalChance: 0
   CriticalDamage: 0
-  BulletId: 1
+  BulletId: 0
   BulletNum: 1
   TrajectoryNum: 1

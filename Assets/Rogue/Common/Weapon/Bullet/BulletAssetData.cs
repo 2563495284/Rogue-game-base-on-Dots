@@ -14,6 +14,9 @@ namespace Rogue
         public int Id;//子弹id
         public int BulletAnimId;//子弹动画id
         public BulletType BulletType;//子弹类型
+        public float damage;//伤害
+        public float criticalChance;//暴击几率
+        public float criticalDamage;//暴击伤害
 
         public float Zoom;//缩放
 
@@ -34,7 +37,7 @@ namespace Rogue
 
         public float BulletAcceleration;//子弹加速度
 
-        public float BulletDuration;//子弹持续时间
+        public float BulletLifeTime;//子弹生命时间
 
         public float BulletDelay;//子弹延迟
 
