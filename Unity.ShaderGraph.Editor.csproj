@@ -699,8 +699,8 @@
     <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Graphs\BooleanShaderProperty.cs" />
     <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Nodes\Input\Gradient\SampleGradientNode.cs" />
     <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Generation\Targets\Fullscreen\FullscreenMetaData.cs" />
-    <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Util\FunctionRegistry.cs" />
     <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Nodes\Input\Geometry\TangentVectorNode.cs" />
+    <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Util\FunctionRegistry.cs" />
     <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Graphs\TangentMaterialSlot.cs" />
     <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Nodes\Math\Interpolation\InverseLerpNode.cs" />
     <Compile Include="Library\PackageCache\com.unity.shadergraph@26dc5ae27e7d\Editor\Data\Attributes\SGPropertyDrawerAttribute.cs" />
