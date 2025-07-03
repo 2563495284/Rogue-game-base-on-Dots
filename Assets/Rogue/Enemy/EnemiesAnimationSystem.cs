@@ -36,14 +36,9 @@ namespace Rogue
                              .WithAll<Enemy>()
                              .WithEntityAccess())
                 {
-                    var enemyAnimation = new EnemyAnimation();
                     var go = GameObject.Instantiate(configManaged.EnemyAnimatedPrefabGO);
-                    enemyAnimation.AnimatedGO = go;
 
-                    // 初始Transform同步
-                    SyncTransform(go.transform, transform.ValueRO);
-
-                    ecb.AddComponent(entity, enemyAnimation);
+                    ecb.AddComponent(entity, new EnemyAnimation(go));
                 }
 
                 ecb.Playback(state.EntityManager);

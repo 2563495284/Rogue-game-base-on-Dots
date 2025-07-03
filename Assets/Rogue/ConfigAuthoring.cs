@@ -8,7 +8,10 @@ namespace Rogue
     {
         [Header("Player")]
         public GameObject PlayerPrefabGO;
-        // public GameObject PlayerAnimatedPrefabGO;
+        public GameObject PlayerAnimatedPrefabGO;
+
+        public GameObject PlayerControllerGO;
+
         [Header("Enemy")]
         public int NumEnemies;
         public float EnemySpawnAreaSize;
@@ -16,7 +19,7 @@ namespace Rogue
         public float EnemyDirectionChangeInterval;
         public GameObject EnemyPrefabGO;
         public GameObject EnemyAnimatedPrefabGO;
-    
+
         class Baker : Baker<ConfigAuthoring>
         {
             public override void Bake(ConfigAuthoring authoring)
@@ -26,7 +29,7 @@ namespace Rogue
                 {
                     PlayerPrefab = GetEntity(authoring.PlayerPrefabGO, TransformUsageFlags.Dynamic),
                     // PlayerAnimatedPrefabGO = authoring.PlayerAnimatedPrefabGO,
-                    
+
                     NumEnemies = authoring.NumEnemies,
                     EnemyPrefab = GetEntity(authoring.EnemyPrefabGO, TransformUsageFlags.Dynamic),
                     EnemySpawnAreaSize = authoring.EnemySpawnAreaSize,
@@ -35,6 +38,8 @@ namespace Rogue
                 });
                 var configManaged = new ConfigManaged();
                 configManaged.EnemyAnimatedPrefabGO = authoring.EnemyAnimatedPrefabGO;
+                configManaged.PlayerAnimatedPrefabGO = authoring.PlayerAnimatedPrefabGO;
+                configManaged.PlayerControllerPrefabGO = authoring.PlayerControllerGO;
                 AddComponentObject(entity, configManaged);
             }
         }
@@ -42,7 +47,7 @@ namespace Rogue
 
     public struct Config : IComponentData
     {
-         [Header("Player")]
+        [Header("Player")]
         public Entity PlayerPrefab;
         // public Entity PlayerAnimatedPrefabGO;
 
@@ -58,5 +63,7 @@ namespace Rogue
     public class ConfigManaged : IComponentData
     {
         public GameObject EnemyAnimatedPrefabGO;
+        public GameObject PlayerAnimatedPrefabGO;
+        public GameObject PlayerControllerPrefabGO;
     }
 }

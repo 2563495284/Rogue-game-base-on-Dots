@@ -17,10 +17,10 @@ namespace Rogue
             state.RequireForUpdate<ExecutePlayerWeapon>();
         }
 
-        // Because this update accesses managed objects, it cannot be Burst compiled,
-        // so we do not add the [BurstCompile] attribute.
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+
         }
     }
 }

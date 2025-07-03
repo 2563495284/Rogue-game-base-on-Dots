@@ -6,8 +6,13 @@ namespace Rogue
     public class ExecuteAuthoring : MonoBehaviour
     {
         public bool SpawnSystem;
+        [Header("Enemies")]
         public bool EnemiesAnimationSystem;
+
+        [Header("Player")]
         public bool PlayerWeaponSystem;
+        public bool PlayerMovementSystem;
+        public bool PlayerAnimationSystem;
 
         class Baker : Baker<ExecuteAuthoring>
         {
@@ -28,6 +33,16 @@ namespace Rogue
                 {
                     AddComponent<ExecutePlayerWeapon>(entity);
                 }
+
+                if (authoring.PlayerMovementSystem)
+                {
+                    AddComponent<ExecutePlayerMovement>(entity);
+                }
+
+                if (authoring.PlayerAnimationSystem)
+                {
+                    AddComponent<ExecutePlayerAnimation>(entity);
+                }
             }
         }
     }
@@ -41,6 +56,14 @@ namespace Rogue
     }
 
     public struct ExecutePlayerWeapon : IComponentData
+    {
+    }
+    // 执行组件标记
+    public struct ExecutePlayerMovement : IComponentData
+    {
+    }
+
+    public struct ExecutePlayerAnimation : IComponentData
     {
     }
 }

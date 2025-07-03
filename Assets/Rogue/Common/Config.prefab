@@ -45,7 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 982c67e02951f4011b67fa98506a09b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumEnemies: 0
+  PlayerPrefabGO: {fileID: 943049589341152679, guid: b35f64339c173944cbcb1848e1e0d8be, type: 3}
+  PlayerAnimatedPrefabGO: {fileID: 7100645380113196838, guid: 6c9be4e421e0c5e4692b0a6d059bbe6a, type: 3}
+  PlayerControllerGO: {fileID: 7100645380113196838, guid: 39b7c73342b7849608b4096b4cfc8e40, type: 3}
+  NumEnemies: 10000
   EnemySpawnAreaSize: 10
   EnemyMoveSpeed: 0.5
   EnemyDirectionChangeInterval: 5
@@ -64,4 +67,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnSystem: 1
-  AnimationSystem: 1
+  EnemiesAnimationSystem: 1
+  PlayerWeaponSystem: 1
+  PlayerMovementSystem: 1
+  PlayerAnimationSystem: 1
