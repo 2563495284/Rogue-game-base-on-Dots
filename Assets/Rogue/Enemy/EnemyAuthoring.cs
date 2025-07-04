@@ -16,6 +16,7 @@ namespace Rogue
                 var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
                 AddComponent<Enemy>(entity);
                 AddComponent<EnemyMovement>(entity);
+                AddComponent<HealthBarInstancedTag>(entity);
                 AddComponent(entity, new EnemyHealth
                 {
                     MaxHealth = authoring.maxHealth,

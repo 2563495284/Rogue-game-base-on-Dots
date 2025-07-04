@@ -65,7 +65,7 @@ namespace Rogue
         /// 检查子弹是否超出边界
         /// </summary>
         [BurstCompile]
-        private static bool IsOutOfBounds(float3 position)
+        private static bool IsOutOfBounds(in float3 position)
         {
             const float BOUNDARY_SIZE = 100f; // 边界大小
 
