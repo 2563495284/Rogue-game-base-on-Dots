@@ -137,20 +137,20 @@ namespace Rogue
                          .WithEntityAccess())
             {
                 // 检查血量是否需要显示
-                // if (health.ValueRO.CurrentHealth >= health.ValueRO.MaxHealth || health.ValueRO.IsDead)
-                //     continue;
+                if (health.ValueRO.CurrentHealth >= health.ValueRO.MaxHealth || health.ValueRO.IsDead)
+                    continue;
 
                 float3 worldPos = transform.ValueRO.Position;
                 float3 healthBarWorldPos = worldPos + new float3(0, renderConfig.yOffset, 0);
 
                 // 距离剔除
-                // float distance = math.distance(cameraPosition, healthBarWorldPos);
-                // if (renderConfig.useDistanceCulling && distance > renderConfig.maxRenderDistance)
-                //     continue;
+                float distance = math.distance(cameraPosition, healthBarWorldPos);
+                if (renderConfig.useDistanceCulling && distance > renderConfig.maxRenderDistance)
+                    continue;
 
                 // 视锥剔除
-                // if (renderConfig.useFrustumCulling && !IsInCameraFrustum(healthBarWorldPos))
-                //     continue;
+                if (renderConfig.useFrustumCulling && !IsInCameraFrustum(healthBarWorldPos))
+                    continue;
 
                 // 计算屏幕坐标
                 Vector3 screenPos = mainCamera.WorldToScreenPoint(healthBarWorldPos);
@@ -158,12 +158,12 @@ namespace Rogue
 
                 // 计算透明度（基于距离）
                 float alpha = 1.0f;
-                // if (distance > renderConfig.fadeDistance)
-                // {
-                //     alpha = 1.0f - (distance - renderConfig.fadeDistance) /
-                //            (renderConfig.maxRenderDistance - renderConfig.fadeDistance);
-                //     alpha = math.max(0, alpha);
-                // }
+                if (distance > renderConfig.fadeDistance)
+                {
+                    alpha = 1.0f - (distance - renderConfig.fadeDistance) /
+                           (renderConfig.maxRenderDistance - renderConfig.fadeDistance);
+                    alpha = math.max(0, alpha);
+                }
 
                 // 创建血条数据
                 var healthData = new HealthBarInstanceData

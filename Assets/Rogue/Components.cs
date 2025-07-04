@@ -70,26 +70,6 @@ namespace Rogue
             IsDead = false;
         }
     }
-
-    // 敌人血量UI组件
-    public class EnemyHealthUI : IComponentData
-    {
-        public GameObject HealthBarGO;      // 血条GameObject
-        public UnityEngine.UI.Slider HealthSlider; // 血条滑块
-        public UnityEngine.UI.Text HealthText;     // 血量文本 (可选)
-
-        public EnemyHealthUI(GameObject healthBarGO)
-        {
-            HealthBarGO = healthBarGO;
-            HealthSlider = healthBarGO.GetComponent<UnityEngine.UI.Slider>();
-            HealthText = healthBarGO.GetComponentInChildren<UnityEngine.UI.Text>();
-        }
-
-        public EnemyHealthUI()
-        {
-        }
-    }
-
     // 武器冷却组件
     public struct WeaponCooldown : IComponentData
     {

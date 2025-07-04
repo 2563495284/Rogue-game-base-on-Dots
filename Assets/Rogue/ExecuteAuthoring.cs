@@ -8,7 +8,6 @@ namespace Rogue
         public bool SpawnSystem;
         [Header("Enemies")]
         public bool EnemiesAnimationSystem;
-        public bool EnemyHealthUISystem;
 
         [Header("Player")]
         public bool PlayerWeaponSystem;
@@ -32,11 +31,6 @@ namespace Rogue
                 if (authoring.EnemiesAnimationSystem)
                 {
                     AddComponent<ExecuteEnemiesAnimation>(entity);
-                }
-
-                if (authoring.EnemyHealthUISystem)
-                {
-                    AddComponent<ExecuteEnemyHealthUI>(entity);
                 }
 
                 if (authoring.PlayerWeaponSystem)
@@ -84,10 +78,6 @@ namespace Rogue
     }
 
     public struct ExecutePlayerAnimation : IComponentData
-    {
-    }
-
-    public struct ExecuteEnemyHealthUI : IComponentData
     {
     }
 
