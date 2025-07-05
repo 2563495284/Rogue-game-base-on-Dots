@@ -55,7 +55,6 @@ MonoBehaviour:
   EnemyDirectionChangeInterval: 5
   EnemyPrefabGO: {fileID: 7617736419631500257, guid: 39ae9437ced724b6e927f2ff00cf3906, type: 3}
   EnemyAnimatedPrefabGO: {fileID: 7617736419631500257, guid: 96e02370f39cc43c6acedbd335ad8e83, type: 3}
-  EnemyHealthBarPrefabGO: {fileID: 1237299973160433012, guid: c7551174d9eff48278cd9598b35fb496, type: 3}
 --- !u!114 &850455571819818384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,7 +69,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SpawnSystem: 1
   EnemiesAnimationSystem: 1
-  EnemyHealthUISystem: 0
+  PlayerSystem: 1
   PlayerWeaponSystem: 1
   PlayerMovementSystem: 1
   PlayerAnimationSystem: 1

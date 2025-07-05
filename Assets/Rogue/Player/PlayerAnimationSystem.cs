@@ -40,12 +40,6 @@ namespace Rogue
                     // 延迟添加组件
                     ecb.AddComponent(player, playerAnimation);
                 }
-                //playerController
-                {
-                    var go = GameObject.Instantiate(configManaged.PlayerControllerPrefabGO);
-                    // 延迟添加组件
-                    ecb.AddComponent(player, new Controller(go));
-                }
                 ecb.Playback(state.EntityManager);
             }
 

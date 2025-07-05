@@ -78,9 +78,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/Rogue/Player/PlayerMovementSystem.cs" />
+    <Compile Include="Assets/Rogue/Player/PlayerSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 1/BucketAuthoring.cs" />
     <Compile Include="Assets/Rogue/Player/PlayerAnimationSystem.cs" />
     <Compile Include="Assets/Rogue/Weapon/Bullet/BulletController.cs" />
+    <Compile Include="Assets/Rogue/Player/PlayerMultiWeaponSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 1/PondAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 3/BucketSystem.cs" />
     <Compile Include="Assets/Kickball/Step 2/PlayerAuthoring.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="Assets/Kickball/Common/ExecuteAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 4/UIController.cs" />
     <Compile Include="Assets/Kickball/Step 5/BallKickingSystem.cs" />
+    <Compile Include="Assets/Rogue/Player/WeaponManager.cs" />
     <Compile Include="Assets/Rogue/Weapon/WeaponAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 1/SpawnSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 4/UISystem.cs" />

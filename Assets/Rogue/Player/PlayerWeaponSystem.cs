@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Rogue
 {
+    [DisableAutoCreation]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct PlayerWeaponSystem : ISystem
     {
@@ -44,7 +45,7 @@ namespace Rogue
                 var currentCooldown = cooldown.ValueRW;
 
                 // 检查是否可以射击
-                if (currentCooldown.IsReady && ShouldShoot(state, entity))
+                if (currentCooldown.IsReady && ShouldShoot(ref state, entity))
                 {
                     // 射击
                     FireWeapon(ref state, weapon.ValueRO, transform.ValueRO, entity, configManaged);
@@ -59,7 +60,7 @@ namespace Rogue
         /// <summary>
         /// 判断是否应该射击（可以根据输入或AI逻辑来决定）
         /// </summary>
-        private bool ShouldShoot(SystemState state, Entity playerEntity)
+        private bool ShouldShoot(ref SystemState state, Entity playerEntity)
         {
             //自动攻击
             return true;
@@ -87,7 +88,7 @@ namespace Rogue
             }
 
             // 计算射击方向
-            var shootDirection = GetShootDirection(state, weaponTransform, owner);
+            var shootDirection = GetShootDirection(ref state, weaponTransform, owner);
 
             // 根据武器配置生成多个子弹
             for (int i = 0; i < weapon.BulletNum; i++)
@@ -112,7 +113,7 @@ namespace Rogue
         /// <summary>
         /// 获取射击方向
         /// </summary>
-        private float3 GetShootDirection(SystemState state, LocalTransform shooterTransform, Entity shooter)
+        private float3 GetShootDirection(ref SystemState state, LocalTransform shooterTransform, Entity shooter)
         {
             // 查找最近的敌人
             Entity nearestEnemy = Entity.Null;

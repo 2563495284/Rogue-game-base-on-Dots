@@ -21,7 +21,6 @@ namespace Rogue
         public float EnemyDirectionChangeInterval;
         public GameObject EnemyPrefabGO;
         public GameObject EnemyAnimatedPrefabGO;
-        public GameObject EnemyHealthBarPrefabGO;
 
         class Baker : Baker<ConfigAuthoring>
         {
@@ -41,7 +40,6 @@ namespace Rogue
                 });
                 var configManaged = new ConfigManaged();
                 configManaged.EnemyAnimatedPrefabGO = authoring.EnemyAnimatedPrefabGO;
-                configManaged.EnemyHealthBarPrefabGO = authoring.EnemyHealthBarPrefabGO;
                 configManaged.PlayerAnimatedPrefabGO = authoring.PlayerAnimatedPrefabGO;
                 configManaged.PlayerControllerPrefabGO = authoring.PlayerControllerGO;
                 configManaged.BulletPrefabGO = authoring.BulletPrefabGO;
@@ -68,7 +66,6 @@ namespace Rogue
     public class ConfigManaged : IComponentData
     {
         public GameObject EnemyAnimatedPrefabGO;
-        public GameObject EnemyHealthBarPrefabGO;
         public GameObject PlayerAnimatedPrefabGO;
         public GameObject PlayerControllerPrefabGO;
         public GameObject BulletPrefabGO;

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7311541770482693793}
   - component: {fileID: -772082353230984401}
+  - component: {fileID: 3773546297601787465}
   m_Layer: 0
   m_Name: PlayerController
   m_TagString: Untagged
@@ -44,3 +45,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6ddcbb15f30444283cba2b0bf5af74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponManager: {fileID: 3773546297601787465}
+--- !u!114 &3773546297601787465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7100645380113196838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7487ff260f01a426a9389590ee591b0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebugInfo: 1
+  weaponPrefabs:
+  - {fileID: 3851849270322205962, guid: 79fae4e227d91427095753da89c4cb15, type: 3}
