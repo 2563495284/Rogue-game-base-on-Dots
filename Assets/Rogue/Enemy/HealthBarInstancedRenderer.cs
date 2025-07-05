@@ -69,7 +69,7 @@ namespace Rogue
             // 获取主摄像机
             mainCamera = Camera.main;
             if (mainCamera == null)
-                mainCamera = Object.FindObjectOfType<Camera>();
+                mainCamera = Object.FindFirstObjectByType<Camera>();
 
             // 加载材质
             healthBarMaterial = Resources.Load<Material>("HealthBarInstancedMaterial");
