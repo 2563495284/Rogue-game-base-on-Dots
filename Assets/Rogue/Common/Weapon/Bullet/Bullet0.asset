@@ -27,7 +27,7 @@ MonoBehaviour:
   IsAtkDestroy: 0
   AtkFrame: 0
   BulletCollisionR: 10
-  BulletSpeed: 0
+  BulletSpeed: 10
   BulletAcceleration: 0
   BulletLifeTime: 10
   BulletDelay: 0
