@@ -8,6 +8,9 @@ namespace Rogue
     {
         [Header("子弹配置")]
         public BulletAssetData bulletAssetData;
+        
+        [Header("动画配置")]
+        public Animator bulletAnimator; // 可以直接在Inspector中拖拽Animator组件
 
         private class Baker : Baker<BulletAuthoring>
         {
@@ -38,6 +41,8 @@ namespace Rogue
                     HasHit = false,
                     Owner = Entity.Null // 将在发射时设置
                 });
+
+                AddComponentObject(entity, new BulletAnimation(authoring.bulletAnimator));
             }
         }
     }

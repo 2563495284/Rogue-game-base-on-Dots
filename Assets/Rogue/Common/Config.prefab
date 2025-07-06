@@ -48,13 +48,16 @@ MonoBehaviour:
   PlayerPrefabGO: {fileID: 943049589341152679, guid: b35f64339c173944cbcb1848e1e0d8be, type: 3}
   PlayerAnimatedPrefabGO: {fileID: 7100645380113196838, guid: 6c9be4e421e0c5e4692b0a6d059bbe6a, type: 3}
   PlayerControllerGO: {fileID: 7100645380113196838, guid: 39b7c73342b7849608b4096b4cfc8e40, type: 3}
-  BulletPrefabGO: {fileID: 6163820735451155453, guid: de824f238d80e490b97605fbef228495, type: 3}
   NumEnemies: 100
   EnemySpawnAreaSize: 10
   EnemyMoveSpeed: 0.5
   EnemyDirectionChangeInterval: 5
   EnemyPrefabGO: {fileID: 7617736419631500257, guid: 39ae9437ced724b6e927f2ff00cf3906, type: 3}
   EnemyAnimatedPrefabGO: {fileID: 7617736419631500257, guid: 96e02370f39cc43c6acedbd335ad8e83, type: 3}
+  WeaponPrefabGOs:
+  - {fileID: 3851849270322205962, guid: 79fae4e227d91427095753da89c4cb15, type: 3}
+  BulletPrefabGOs:
+  - {fileID: 6163820735451155453, guid: de824f238d80e490b97605fbef228495, type: 3}
 --- !u!114 &850455571819818384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,11 +70,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56455b378ec794435869a468cee1cfd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnSystem: 1
-  EnemiesAnimationSystem: 1
   PlayerSystem: 1
-  PlayerWeaponSystem: 1
   PlayerMovementSystem: 1
   PlayerAnimationSystem: 1
-  BulletMovementSystem: 1
-  BulletLifetimeSystem: 1
+  SpawnPlayerSystem: 1
+  EnemySpawnSystem: 1
+  EnemyMovementSystem: 1
+  EnemyAnimationSystem: 1
+  WeaponSystem: 1
+  BulletSpawnSystem: 1
+  BulletMovementSystem: 0
+  BulletLifetimeSystem: 0
+  BulletAnimationSystem: 1
+  BulletCollisionSystem: 0
+  BulletDamageSystem: 0

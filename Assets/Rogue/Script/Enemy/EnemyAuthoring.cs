@@ -9,6 +9,9 @@ namespace Rogue
         [Header("血量设置")]
         public float maxHealth = 100f;
 
+        [Header("动画配置")]
+        public Animator enemyAnimator; // 可以直接在Inspector中拖拽Animator组件
+
         private class Baker : Baker<EnemyAuthoring>
         {
             public override void Bake(EnemyAuthoring authoring)
@@ -23,6 +26,8 @@ namespace Rogue
                     CurrentHealth = authoring.maxHealth,
                     IsDead = false
                 });
+
+                AddComponentObject(entity, new EnemyAnimation(authoring.enemyAnimator));
             }
         }
     }

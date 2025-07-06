@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -11,9 +13,6 @@ namespace Rogue
         public GameObject PlayerAnimatedPrefabGO;
         public GameObject PlayerControllerGO;
 
-        [Header("Weapons")]
-        public GameObject BulletPrefabGO;
-
         [Header("Enemy")]
         public int NumEnemies;
         public float EnemySpawnAreaSize;
@@ -21,12 +20,21 @@ namespace Rogue
         public float EnemyDirectionChangeInterval;
         public GameObject EnemyPrefabGO;
         public GameObject EnemyAnimatedPrefabGO;
+        [Header("Weapons")]
+        public List<GameObject> WeaponPrefabGOs;
+        [Header("Bullets")]
+        public List<GameObject> BulletPrefabGOs;
 
         class Baker : Baker<ConfigAuthoring>
         {
             public override void Bake(ConfigAuthoring authoring)
             {
                 var entity = GetEntity(authoring, TransformUsageFlags.None);
+                
+                // 转换子弹预制体为Entity数组
+                var weaponPrefabEntities = authoring.WeaponPrefabGOs.Select(go => GetEntity(go, TransformUsageFlags.Dynamic)).ToArray();
+                var bulletPrefabEntities = authoring.BulletPrefabGOs.Select(go => GetEntity(go, TransformUsageFlags.Dynamic)).ToArray();
+                
                 AddComponent(entity, new Config
                 {
                     PlayerPrefab = GetEntity(authoring.PlayerPrefabGO, TransformUsageFlags.Dynamic),
@@ -42,7 +50,8 @@ namespace Rogue
                 configManaged.EnemyAnimatedPrefabGO = authoring.EnemyAnimatedPrefabGO;
                 configManaged.PlayerAnimatedPrefabGO = authoring.PlayerAnimatedPrefabGO;
                 configManaged.PlayerControllerPrefabGO = authoring.PlayerControllerGO;
-                configManaged.BulletPrefabGO = authoring.BulletPrefabGO;
+                configManaged.WeaponPrefabEntities = weaponPrefabEntities;
+                configManaged.BulletPrefabEntities = bulletPrefabEntities;
                 AddComponentObject(entity, configManaged);
             }
         }
@@ -53,21 +62,21 @@ namespace Rogue
         [Header("Player")]
         public Entity PlayerPrefab;
         // public Entity PlayerAnimatedPrefabGO;
-
         [Header("Enemy")]
         public int NumEnemies;
         public Entity EnemyPrefab;
         public float EnemySpawnAreaSize;
         public float EnemyMoveSpeed;
         public float EnemyDirectionChangeInterval;
-
     }
 
     public class ConfigManaged : IComponentData
     {
         public GameObject EnemyAnimatedPrefabGO;
+        public GameObject BulletAnimatedPrefabGO;
         public GameObject PlayerAnimatedPrefabGO;
         public GameObject PlayerControllerPrefabGO;
-        public GameObject BulletPrefabGO;
+        public Entity[] WeaponPrefabEntities;
+        public Entity[] BulletPrefabEntities;
     }
 }

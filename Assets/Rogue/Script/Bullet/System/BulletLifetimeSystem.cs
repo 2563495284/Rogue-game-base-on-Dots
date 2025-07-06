@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Rogue
 {
-    [UpdateInGroup(typeof(BulletSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(BulletDamageSystem))]
     [BurstCompile]
     public partial struct BulletLifetimeSystem : ISystem

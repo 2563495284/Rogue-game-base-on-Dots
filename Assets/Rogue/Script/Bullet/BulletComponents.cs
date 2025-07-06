@@ -60,15 +60,28 @@ namespace Rogue
 
     public struct BulletSpawnRequest : IComponentData
     {
-        public Entity BulletPrefab;
+        public int BulletId;
         public float3 SpawnPosition;
         public float3 Direction;
-        public float Speed;
         public float Damage;
         public float CriticalChance;
         public float CriticalDamage;
         public float Lifetime;
         public Entity Owner;
         public bool IsProcessed;
+    }
+
+    //子弹动画组件（托管组件，用于存储Animator引用）
+    public class BulletAnimation : IComponentData
+    {
+        public UnityEngine.Animator Animator;
+        public BulletAnimation(UnityEngine.Animator animator)
+        {
+            Animator = animator;
+        }
+        public BulletAnimation()
+        {
+            Animator = null;
+        }
     }
 }

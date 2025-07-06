@@ -91,6 +91,7 @@
     <Compile Include="Assets\Rogue\Script\Player\System\PlayerMovementSystem.cs" />
     <Compile Include="Assets\Rogue\Script\Bullet\System\BulletCollisionSystem.cs" />
     <Compile Include="Assets\Kickball\Step 1\ObstacleAuthoring.cs" />
+    <Compile Include="Assets\Rogue\Script\Bullet\System\BulletAnimationSystem.cs" />
     <Compile Include="Assets\Rogue\Script\Bullet\BulletController.cs" />
     <Compile Include="Assets\Rogue\Script\Weapon\System\WeaponSystem.cs" />
     <Compile Include="Assets\Kickball\Step 1\ConfigAuthoring.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Assets\Rogue\Script\Enemy\EnemyDeathSystem.cs" />
     <Compile Include="Assets\Firefighters\Step 3\BotSystem.cs" />
     <Compile Include="Assets\Tornado\BarAuthoring.cs" />
+    <Compile Include="Assets\Rogue\Script\Enemy\EnemyComponent.cs" />
     <Compile Include="Assets\Tornado\BuildingSpawnSystem.cs" />
     <Compile Include="Assets\Tornado\BuildingSystem.cs" />
     <Compile Include="Assets\Firefighters\Step 1\ConfigAuthoring.cs" />
@@ -133,8 +135,8 @@
     <Compile Include="Assets\Firefighters\Step 4\AnimationSystem.cs" />
     <Compile Include="Assets\Kickball\Step 2\PlayerMovementSystem.cs" />
     <Compile Include="Assets\Tornado\BuildingRenderSystem.cs" />
-    <Compile Include="Assets\Rogue\Script\Weapon\WeaponAssetData.cs" />
     <Compile Include="Assets\Rogue\Script\Enemy\System\EnemySpawnSystem.cs" />
+    <Compile Include="Assets\Rogue\Script\Weapon\WeaponAssetData.cs" />
     <Compile Include="Assets\Rogue\Script\Player\System\PlayerSpawnSystem.cs" />
     <Compile Include="Assets\Tornado\CameraSystem.cs" />
     <Compile Include="Assets\Rogue\Script\Enemy\EnemyAuthoring.cs" />

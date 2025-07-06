@@ -11,10 +11,6 @@ namespace Rogue
     {
         [Header("调试信息")]
         [SerializeField] private bool showDebugInfo = true;
-
-        [Header("武器预制体")]
-        public GameObject[] weaponPrefabs;
-
         private Entity playerEntity;
         private EntityManager entityManager;
         private World world;
@@ -72,14 +68,7 @@ namespace Rogue
 
             // 创建武器操作请求实体
             var requestEntity = entityManager.CreateEntity();
-            entityManager.AddComponentData(requestEntity, new WeaponOperationRequest
-            {
-                OperationType = WeaponOperationType.Add,
-                SlotIndex = slotIndex,
-                Priority = priority,
-                WeaponPrefabEntity = new Entity { Index = weaponPrefabIndex, Version = 0 }, // 使用索引作为临时标识
-                IsProcessed = false
-            });
+            entityManager.AddComponentData(requestEntity, WeaponOperationRequest.CreateAddRequest(weaponPrefabIndex, slotIndex, priority));
 
             if (showDebugInfo)
             {
@@ -106,14 +95,7 @@ namespace Rogue
 
             // 创建武器操作请求实体
             var requestEntity = entityManager.CreateEntity();
-            entityManager.AddComponentData(requestEntity, new WeaponOperationRequest
-            {
-                OperationType = WeaponOperationType.Remove,
-                SlotIndex = slotIndex,
-                Priority = 0,
-                WeaponPrefabEntity = Entity.Null,
-                IsProcessed = false
-            });
+            entityManager.AddComponentData(requestEntity, WeaponOperationRequest.CreateRemoveRequest(slotIndex));
 
             if (showDebugInfo)
             {
@@ -164,25 +146,6 @@ namespace Rogue
             {
                 Debug.Log($"设置槽位 {slotIndex} 武器优先级为：{priority}");
             }
-        }
-
-        /// <summary>
-        /// 获取武器预制体索引
-        /// </summary>
-        /// <param name="weaponPrefab">武器预制体</param>
-        /// <returns>索引，未找到返回-1</returns>
-        private int GetWeaponPrefabIndex(GameObject weaponPrefab)
-        {
-            if (weaponPrefabs == null) return -1;
-
-            for (int i = 0; i < weaponPrefabs.Length; i++)
-            {
-                if (weaponPrefabs[i] == weaponPrefab)
-                {
-                    return i;
-                }
-            }
-            return -1;
         }
 
         /// <summary>

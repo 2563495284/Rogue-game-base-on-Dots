@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d307bf8495b0f4825a0b52ab29df9c12, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 11b93b3d9652e43f99a7c98dd66a5db2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -124,3 +124,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletAssetData: {fileID: 11400000, guid: feaeb802f4ed3d34b8fb585fac53d080, type: 2}
+  bulletAnimator: {fileID: 3115146145359392319}

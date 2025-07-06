@@ -76,23 +76,31 @@ namespace Rogue
         /// <summary>
         /// 处理武器操作请求
         /// </summary>
-        private void ProcessWeaponRequests(ref SystemState state, ConfigManaged config, EntityCommandBuffer ecb)
+        private void ProcessWeaponRequests(ref SystemState state, ConfigManaged configManaged, EntityCommandBuffer ecb)
         {
-            var weaponManagerTool = GameObject.FindFirstObjectByType<WeaponManagerTool>();
-            if (weaponManagerTool == null) return;
-
             // 处理所有待处理的武器操作请求
             foreach (var (request, entity) in SystemAPI.Query<RefRO<WeaponOperationRequest>>().WithEntityAccess())
             {
-                if (request.ValueRO.IsProcessed) continue;
+                var requestData = request.ValueRO;
+                
+                // 跳过已处理的请求
+                if (requestData.IsProcessed) continue;
+                
+                // 验证请求有效性
+                if (!requestData.IsValid)
+                {
+                    Debug.LogError($"无效的武器操作请求：操作类型={requestData.OperationType}, 槽位={requestData.SlotIndex}, 武器索引={requestData.WeaponPrefabIndex}");
+                    ecb.DestroyEntity(entity);
+                    continue;
+                }
 
-                switch (request.ValueRO.OperationType)
+                switch (requestData.OperationType)
                 {
                     case WeaponOperationType.Add:
-                        ProcessAddWeaponRequestWithECB(ref state, request.ValueRO, weaponManagerTool, ecb);
+                        ProcessAddWeaponRequestWithECB(ref state, configManaged, requestData, ecb);
                         break;
                     case WeaponOperationType.Remove:
-                        ProcessRemoveWeaponRequestWithECB(ref state, request.ValueRO, ecb);
+                        ProcessRemoveWeaponRequestWithECB(ref state, requestData, ecb);
                         break;
                 }
 
@@ -104,7 +112,7 @@ namespace Rogue
         /// <summary>
         /// 处理添加武器请求（使用EntityCommandBuffer）
         /// </summary>
-        private void ProcessAddWeaponRequestWithECB(ref SystemState state, WeaponOperationRequest request, WeaponManagerTool weaponManagerTool, EntityCommandBuffer ecb)
+        private void ProcessAddWeaponRequestWithECB(ref SystemState state, ConfigManaged configManaged, WeaponOperationRequest request, EntityCommandBuffer ecb)
         {
             // 查找玩家实体
             var playerQuery = state.EntityManager.CreateEntityQuery(typeof(Player), typeof(WeaponManager));
@@ -120,20 +128,15 @@ namespace Rogue
             var playerEntity = playerEntities[0];
             playerEntities.Dispose();
 
-            // 获取武器预制体
-            int weaponIndex = request.WeaponPrefabEntity.Index;
-            if (weaponIndex < 0 || weaponIndex >= weaponManagerTool.weaponPrefabs.Length)
+            // 获取武器预制体Entity
+            int weaponIndex = request.WeaponPrefabIndex;
+            if (weaponIndex < 0 || weaponIndex >= configManaged.WeaponPrefabEntities.Length)
             {
                 Debug.LogError($"武器预制体索引超出范围：{weaponIndex}");
                 return;
             }
 
-            var weaponPrefab = weaponManagerTool.weaponPrefabs[weaponIndex];
-            if (weaponPrefab == null)
-            {
-                Debug.LogError("武器预制体为空！");
-                return;
-            }
+            var weaponPrefabEntity = configManaged.WeaponPrefabEntities[weaponIndex];
 
             // 获取武器槽位缓冲区
             var weaponSlots = state.EntityManager.GetBuffer<WeaponSlot>(playerEntity);
@@ -154,42 +157,8 @@ namespace Rogue
                 }
             }
 
-            // 实例化武器预制体
-            var weaponGO = GameObject.Instantiate(weaponPrefab);
-            var weaponAuthoring = weaponGO.GetComponent<WeaponAuthoring>();
-
-            if (weaponAuthoring == null)
-            {
-                Debug.LogError("武器预制体缺少WeaponAuthoring组件！");
-                GameObject.Destroy(weaponGO);
-                return;
-            }
-
-            // 创建武器实体
-            var weaponEntity = ecb.CreateEntity();
-
-            // 添加武器组件
-            ecb.AddComponent(weaponEntity, new Weapon
-            {
-                Id = weaponAuthoring.WeaponAssetData.Id,
-                Level = weaponAuthoring.WeaponAssetData.Level,
-                AnimId = weaponAuthoring.WeaponAssetData.AnimId,
-                Zoom = weaponAuthoring.WeaponAssetData.Zoom,
-                Damage = weaponAuthoring.WeaponAssetData.Damage,
-                Range = weaponAuthoring.WeaponAssetData.Range,
-                Cooldown = weaponAuthoring.WeaponAssetData.Cooldown,
-                Attribute = weaponAuthoring.WeaponAssetData.Attribute,
-                CriticalChance = weaponAuthoring.WeaponAssetData.CriticalChance,
-                CriticalDamage = weaponAuthoring.WeaponAssetData.CriticalDamage,
-                BulletId = weaponAuthoring.WeaponAssetData.BulletId,
-                BulletNum = weaponAuthoring.WeaponAssetData.BulletNum,
-                TrajectoryNum = weaponAuthoring.WeaponAssetData.TrajectoryNum,
-            });
-
-            // 添加武器冷却组件
-            var cooldown = new WeaponCooldown();
-            cooldown.StartCooldown(0f);
-            ecb.AddComponent(weaponEntity, cooldown);
+            // 实例化武器Entity（这会复制WeaponAuthoring创建的所有组件，包括Weapon和WeaponCooldown）
+            var weaponEntity = ecb.Instantiate(weaponPrefabEntity);
 
             // 创建武器槽位更新请求
             ecb.AddComponent(weaponEntity, new WeaponSlotUpdateRequest
@@ -205,10 +174,7 @@ namespace Rogue
             weaponManager.ActiveWeapons++;
             ecb.SetComponent(playerEntity, weaponManager);
 
-            // 销毁GameObject（我们只需要实体）
-            GameObject.Destroy(weaponGO);
-
-            Debug.Log($"系统成功添加武器到槽位 {request.SlotIndex}，武器ID: {weaponAuthoring.WeaponAssetData.Id}");
+            Debug.Log($"系统成功添加武器到槽位 {request.SlotIndex}，武器索引: {weaponIndex}");
         }
 
         /// <summary>
@@ -491,20 +457,19 @@ namespace Rogue
         }
 
         /// <summary>
-        /// 发射武器逻辑（沿用原来的逻辑）
+        /// 发射武器逻辑（使用BulletSpawnRequest）
         /// </summary>
         private void FireWeapon(ref SystemState state, Weapon weapon, LocalTransform weaponTransform,
                                Entity owner, ConfigManaged config)
         {
-            if (config.BulletPrefabGO == null)
-            {
-                Debug.LogWarning("子弹预制件未设置！");
-                return;
-            }
+            // 获取EntityCommandBuffer
+            var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+                .CreateCommandBuffer(state.WorldUnmanaged);
 
-            // 计算子弹生成位置和方向
-            var bulletPosition = weaponTransform.Position;
-            var bulletDirection = weaponTransform.Forward();
+            // 获取玩家位置作为子弹生成位置（避免武器位置过远的问题）
+            var playerTransform = state.EntityManager.GetComponentData<LocalTransform>(owner);
+            var bulletPosition = playerTransform.Position;
+            var bulletDirection = playerTransform.Forward(); // 使用玩家朝向
 
             // 生成多发子弹
             for (int i = 0; i < weapon.BulletNum; i++)
@@ -517,36 +482,51 @@ namespace Rogue
                     finalDirection = math.rotate(quaternion.RotateY(angle), bulletDirection);
                 }
 
-                // 创建子弹
-                CreateBullet(ref state, config.BulletPrefabGO, bulletPosition, finalDirection, weapon, owner);
+                // 创建子弹发射请求
+                CreateBulletRequest(ecb, bulletPosition, finalDirection, weapon, owner);
             }
 
-            Debug.Log($"武器发射！生成了 {weapon.BulletNum} 发子弹");
+            Debug.Log($"武器发射！生成了 {weapon.BulletNum} 发子弹请求，位置={bulletPosition}");
         }
 
         /// <summary>
-        /// 创建子弹
+        /// 创建子弹发射请求
         /// </summary>
-        private void CreateBullet(ref SystemState state, GameObject bulletPrefab, float3 position,
+        private void CreateBulletRequest(EntityCommandBuffer ecb, float3 position,
+                                        float3 direction, Weapon weapon, Entity owner)
+        {
+            // 创建子弹发射请求
+            var spawnRequest = new BulletSpawnRequest
+            {
+                BulletId = weapon.BulletId,
+                SpawnPosition = position,
+                Direction = direction,
+                Damage = weapon.Damage,
+                CriticalChance = weapon.CriticalChance,
+                CriticalDamage = weapon.CriticalDamage,
+                Lifetime = 5f, // 默认生命周期，可以从武器配置中获取
+                Owner = owner,
+                IsProcessed = false
+            };
+
+            // 创建请求实体
+            var requestEntity = ecb.CreateEntity();
+            ecb.AddComponent(requestEntity, spawnRequest);
+
+            Debug.Log($"创建子弹发射请求：ID={weapon.BulletId}, 位置={position}, 方向={direction}, 伤害={weapon.Damage}");
+        }
+
+        /// <summary>
+        /// 创建子弹 - 使用BulletSpawnRequest请求系统（保留兼容性）
+        /// </summary>
+        private void CreateBullet(ref SystemState state, float3 position,
                                  float3 direction, Weapon weapon, Entity owner)
         {
-            // 实例化子弹GameObject
-            var bulletGO = GameObject.Instantiate(bulletPrefab);
-            bulletGO.transform.position = position;
-
-            // 获取子弹实体（通过BulletAuthoring创建）
-            var bulletAuthoring = bulletGO.GetComponent<BulletAuthoring>();
-            if (bulletAuthoring == null)
-            {
-                Debug.LogError("子弹预制件缺少BulletAuthoring组件！");
-                GameObject.Destroy(bulletGO);
-                return;
-            }
-
-            // 为了简化，我们添加一个MonoBehaviour来处理子弹
-            var bulletController = bulletGO.AddComponent<BulletController>();
-            bulletController.Initialize(direction, bulletAuthoring.bulletAssetData.BulletSpeed, bulletAuthoring.bulletAssetData.BulletLifeTime,
-                                       weapon.Damage, weapon.CriticalChance, weapon.CriticalDamage);
+            // 获取EntityCommandBuffer
+            var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+                .CreateCommandBuffer(state.WorldUnmanaged);
+            
+            CreateBulletRequest(ecb, position, direction, weapon, owner);
         }
     }
 

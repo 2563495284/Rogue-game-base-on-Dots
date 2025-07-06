@@ -10,7 +10,7 @@ namespace Rogue
     /// <summary>
     /// 子弹碰撞检测系统 - 在子弹系统组中执行
     /// </summary>
-    [UpdateInGroup(typeof(BulletSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(BulletMovementSystem))]
     [BurstCompile]
     public partial struct BulletCollisionSystem : ISystem
