@@ -36,7 +36,7 @@ namespace Rogue
                 var bulletMovement = movement.ValueRO;
 
                 // 计算新位置
-                var displacement = bulletMovement.Direction * bulletMovement.Speed * deltaTime;
+                var displacement = bulletMovement.Direction * bullet.ValueRO.BulletSpeed * deltaTime;
                 var newPosition = currentTransform.Position + displacement;
 
                 // 边界检查：防止子弹移动到过远的位置
@@ -51,11 +51,11 @@ namespace Rogue
                 currentTransform.Position = newPosition;
 
                 // 更新朝向（让子弹面向移动方向）
-                if (math.lengthsq(bulletMovement.Direction) > 0.01f)
-                {
-                    var lookDirection = math.normalize(bulletMovement.Direction);
-                    currentTransform.Rotation = quaternion.LookRotation(lookDirection, math.forward());
-                }
+                // if (math.lengthsq(bulletMovement.Direction) > 0.01f)
+                // {
+                //     var lookDirection = math.normalize(bulletMovement.Direction);
+                //     currentTransform.Rotation = quaternion.LookRotation(lookDirection, math.forward());
+                // }
 
                 // 更新Transform组件
                 transform.ValueRW = currentTransform;

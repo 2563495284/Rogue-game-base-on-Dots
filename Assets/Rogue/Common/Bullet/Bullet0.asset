@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: "\u5C0F\u9EC4\u6325\u780D\u5B50\u5F39"
   Id: 0
-  BulletAnimId: 100
+  BulletAnimId: 0
   BulletType: 0
   damage: 0
   criticalChance: 0

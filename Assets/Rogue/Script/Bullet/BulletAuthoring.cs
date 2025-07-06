@@ -8,21 +8,46 @@ namespace Rogue
     {
         [Header("子弹配置")]
         public BulletAssetData bulletAssetData;
-        
-        [Header("动画配置")]
-        public Animator bulletAnimator; // 可以直接在Inspector中拖拽Animator组件
-
         private class Baker : Baker<BulletAuthoring>
         {
             public override void Bake(BulletAuthoring authoring)
             {
                 var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
-                AddComponent<Bullet>(entity);
+                AddComponent<Bullet>(entity, new Bullet
+                {
+                    Id = authoring.bulletAssetData.Id,
+                    BulletAnimId = authoring.bulletAssetData.BulletAnimId,
+                    BulletType = authoring.bulletAssetData.BulletType,
+                    Zoom = authoring.bulletAssetData.Zoom,
+                    AtkBet = authoring.bulletAssetData.AtkBet,
+                    SpiltRadius = authoring.bulletAssetData.SpiltRadius,
+                    AimOffset = authoring.bulletAssetData.AimOffset,
+                    CreateBulletID = authoring.bulletAssetData.CreateBulletID,
+                    IsAtkDestroy = authoring.bulletAssetData.IsAtkDestroy,
+                    AtkFrame = authoring.bulletAssetData.AtkFrame,
+                    BulletCollisionR = authoring.bulletAssetData.BulletCollisionR,
+                    BulletSpeed = authoring.bulletAssetData.BulletSpeed,
+                    BulletAcceleration = authoring.bulletAssetData.BulletAcceleration,
+                    BulletDelay = authoring.bulletAssetData.BulletDelay,
+                    BulletInterval = authoring.bulletAssetData.BulletInterval,
+                    WavingAngle = authoring.bulletAssetData.WavingAngle,
+                    WavingRadius = authoring.bulletAssetData.WavingRadius,
+                    PokeWidth = authoring.bulletAssetData.PokeWidth,
+                    PokeLength = authoring.bulletAssetData.PokeLength,
+                    BulletSurroundR = authoring.bulletAssetData.BulletSurroundR,
+                    BulletSurroundAngle = authoring.bulletAssetData.BulletSurroundAngle,
+                    BulletSurroundSpeed = authoring.bulletAssetData.BulletSurroundSpeed,
+                    BulletSurroundDelay = authoring.bulletAssetData.BulletSurroundDelay,
+                    ParabolaAngle = authoring.bulletAssetData.ParabolaAngle,
+                    ParabolaSpeed = authoring.bulletAssetData.ParabolaSpeed,
+                    ParabolaDelay = authoring.bulletAssetData.ParabolaDelay,
+                    FixedDamage = authoring.bulletAssetData.FixedDamage,
+                    FixedDelay = authoring.bulletAssetData.FixedDelay,
+                });
 
                 // 添加子弹移动组件
                 AddComponent(entity, new BulletMovement
                 {
-                    Speed = authoring.bulletAssetData.BulletSpeed,
                     Direction = float3.zero, // 将在发射时设置
                     StartPosition = float3.zero
                 });
@@ -42,7 +67,6 @@ namespace Rogue
                     Owner = Entity.Null // 将在发射时设置
                 });
 
-                AddComponentObject(entity, new BulletAnimation(authoring.bulletAnimator));
             }
         }
     }

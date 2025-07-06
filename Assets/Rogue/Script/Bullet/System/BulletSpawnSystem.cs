@@ -44,7 +44,7 @@ namespace Rogue
                 if (!spawnRequest.IsProcessed)
                 {
                     // 检查子弹ID是否有效
-                    if (spawnRequest.BulletId < 0 || spawnRequest.BulletId >= configManaged.BulletPrefabEntities.Length)
+                    if (spawnRequest.BulletId < 0 || spawnRequest.BulletId >= configManaged.BulletPrefabEntities.Count)
                     {
                         Debug.LogError($"无效的子弹ID: {spawnRequest.BulletId}");
                         ecb.DestroyEntity(entity);
@@ -53,10 +53,6 @@ namespace Rogue
 
                     // 获取子弹预制体Entity
                     var bulletPrefabEntity = configManaged.BulletPrefabEntities[spawnRequest.BulletId];
-
-                    // 获取子弹配置数据（从预制体获取）
-                    var bulletConfig = GetBulletConfigFromPrefab(bulletPrefabEntity, ref state);
-                    
                     // 实例化子弹Entity（这会复制BulletAuthoring创建的所有组件）
                     var bulletEntity = ecb.Instantiate(bulletPrefabEntity);
 
@@ -74,29 +70,8 @@ namespace Rogue
                     {
                         Direction = math.normalize(spawnRequest.Direction),
                         StartPosition = spawnRequest.SpawnPosition,
-                        Speed = bulletConfig.BulletSpeed // 使用配置中的默认速度
                     };
                     ecb.SetComponent(bulletEntity, movement);
-
-                    // 更新伤害组件 - 使用配置中的默认值
-                    var damage = new BulletDamage
-                    {
-                        Owner = spawnRequest.Owner, // 必须设置发射者
-                        HasHit = false,
-                        Damage = spawnRequest.Damage > 0 ? spawnRequest.Damage : bulletConfig.damage, // 使用配置中的默认伤害
-                        CriticalChance = spawnRequest.CriticalChance > 0 ? spawnRequest.CriticalChance : bulletConfig.criticalChance,
-                        CriticalDamage = spawnRequest.CriticalDamage > 0 ? spawnRequest.CriticalDamage : bulletConfig.criticalDamage
-                    };
-                    ecb.SetComponent(bulletEntity, damage);
-
-                    // 更新生命周期组件 - 使用配置中的默认值
-                    var lifetime = new BulletLifetime
-                    {
-                        MaxLifetime = spawnRequest.Lifetime > 0 ? spawnRequest.Lifetime : bulletConfig.BulletLifeTime,
-                        CurrentLifetime = spawnRequest.Lifetime > 0 ? spawnRequest.Lifetime : bulletConfig.BulletLifeTime,
-                        IsExpired = false
-                    };
-                    ecb.SetComponent(bulletEntity, lifetime);
                 }
 
                 // 销毁请求实体（无论是否处理成功）
@@ -107,30 +82,6 @@ namespace Rogue
             ecb.Dispose();
         }
 
-        /// <summary>
-        /// 从子弹预制体获取配置数据
-        /// </summary>
-        private BulletAssetData GetBulletConfigFromPrefab(Entity bulletPrefabEntity, ref SystemState state)
-        {
-            // 尝试从预制体获取BulletAnimation组件，然后从其中获取配置
-            if (state.EntityManager.HasComponent<BulletAnimation>(bulletPrefabEntity))
-            {
-                var bulletAnimation = state.EntityManager.GetComponentObject<BulletAnimation>(bulletPrefabEntity);
-                if (bulletAnimation?.Animator != null)
-                {
-                    // 从Animator的GameObject获取BulletAuthoring组件
-                    var bulletAuthoring = bulletAnimation.Animator.GetComponent<BulletAuthoring>();
-                    if (bulletAuthoring?.bulletAssetData != null)
-                    {
-                        return bulletAuthoring.bulletAssetData;
-                    }
-                }
-            }
-
-            // 如果无法获取配置，返回默认配置
-            Debug.LogWarning("无法从子弹预制体获取配置，使用默认配置");
-            return CreateDefaultBulletConfig();
-        }
 
         /// <summary>
         /// 创建默认子弹配置

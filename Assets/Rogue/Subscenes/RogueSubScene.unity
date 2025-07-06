@@ -137,7 +137,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 850455571819818384, guid: d22978d8363f64f8f8ae5d55648422e6, type: 3}
       propertyPath: BulletMovementSystem
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 850455571819818384, guid: d22978d8363f64f8f8ae5d55648422e6, type: 3}
       propertyPath: EnemyAnimationSystem

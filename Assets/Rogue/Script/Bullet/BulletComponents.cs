@@ -8,7 +8,6 @@ namespace Rogue
     public struct BulletMovement : IComponentData
     {
         public float3 Direction;     // 移动方向
-        public float Speed;          // 移动速度
         public float3 StartPosition; // 起始位置
     }
 
@@ -74,14 +73,14 @@ namespace Rogue
     //子弹动画组件（托管组件，用于存储Animator引用）
     public class BulletAnimation : IComponentData
     {
-        public UnityEngine.Animator Animator;
-        public BulletAnimation(UnityEngine.Animator animator)
+        public GameObject AnimatedGO;
+        public BulletAnimation(GameObject animatedGO)
         {
-            Animator = animator;
+            AnimatedGO = animatedGO;
         }
         public BulletAnimation()
         {
-            Animator = null;
+            AnimatedGO = null;
         }
     }
 }

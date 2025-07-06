@@ -12,7 +12,6 @@ namespace Rogue
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Bullet>();
-            state.RequireForUpdate<BulletAnimation>();
             state.RequireForUpdate<ExecuteBulletAnimation>();
         }
 
@@ -20,51 +19,32 @@ namespace Rogue
         // so we do not add the [BurstCompile] attribute.
         public void OnUpdate(ref SystemState state)
         {
+            var configEntity = SystemAPI.GetSingletonEntity<Config>();
+            var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
+
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+            foreach (var (bullet, transform, entity) in
+                     SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>>().WithNone<BulletAnimation>().WithEntityAccess())
+            {
+                var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bullet.ValueRO.BulletAnimId]);
+                var bulletAnimation = new BulletAnimation(go);
+                ecb.AddComponent(entity, bulletAnimation);
+            }
+            ecb.Playback(state.EntityManager);
+
             var isMovingId = Animator.StringToHash("bRunning");
-            
             foreach (var (bullet, transform, bulletAnimation) in
                      SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>, BulletAnimation>())
             {
-                // var animator = bulletAnimation.Animator;
-                // if (animator == null) 
-                // {
-                //     Debug.LogWarning("BulletAnimationSystem: Animator is null!");
-                //     continue;
-                // }
+                var animator = bulletAnimation.AnimatedGO.GetComponent<Animator>();
+                if (animator == null) continue;
 
-                // // 确保Animator组件启用
-                // if (!animator.enabled)
-                // {
-                //     animator.enabled = true;
-                //     Debug.Log("BulletAnimationSystem: Enabled animator");
-                // }
+                // 完整的Transform同步
+                SyncTransform(animator.transform, transform.ValueRO);
 
-                // // 同步Transform
-                // SyncTransform(animator.transform, transform.ValueRO);
-
-                // // 检查动画控制器
-                // if (animator.runtimeAnimatorController == null)
-                // {
-                //     Debug.LogError("BulletAnimationSystem: Animator has no runtime controller!");
-                //     continue;
-                // }
-
-                // // 检查动画状态
-                // var currentStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-                // if (!currentStateInfo.IsName("Bullet0Animation") || currentStateInfo.normalizedTime == 0)
-                // {
-                //     animator.Play("Bullet0Animation", 0, 0f);
-                //     Debug.Log("BulletAnimationSystem: Started animation playback");
-                // }
-
-                // // 设置动画参数
-                // animator.SetBool(isMovingId, true);
-
-                // // 调试信息
-                // if (currentStateInfo.IsName("Bullet0Animation"))
-                // {
-                //     Debug.Log($"BulletAnimationSystem: 动画正在播放 - 状态: {currentStateInfo.IsName("Bullet0Animation")}, 时间: {currentStateInfo.normalizedTime:F2}, 长度: {currentStateInfo.length:F2}");
-                // }
+                // 动画状态同步
+                animator.SetBool(isMovingId, true);
             }
         }
 

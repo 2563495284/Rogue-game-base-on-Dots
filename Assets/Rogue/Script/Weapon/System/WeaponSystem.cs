@@ -130,7 +130,7 @@ namespace Rogue
 
             // 获取武器预制体Entity
             int weaponIndex = request.WeaponPrefabIndex;
-            if (weaponIndex < 0 || weaponIndex >= configManaged.WeaponPrefabEntities.Length)
+            if (weaponIndex < 0 || weaponIndex >= configManaged.WeaponPrefabEntities.Count)
             {
                 Debug.LogError($"武器预制体索引超出范围：{weaponIndex}");
                 return;

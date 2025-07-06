@@ -9,15 +9,15 @@ namespace Rogue
     // 敌人动画组件（托管组件，用于存储Animator引用）
     public class EnemyAnimation : IComponentData
     {
-        public Animator Animator;
+        public GameObject AnimatedGO;
         
-        public EnemyAnimation(Animator animator)
+        public EnemyAnimation(GameObject animatedGO)
         {
-            Animator = animator;
+            AnimatedGO = animatedGO;
         }
         public EnemyAnimation()
         {
-            Animator = null;
+            AnimatedGO = null;
         }
     }
     // 敌人血量组件
