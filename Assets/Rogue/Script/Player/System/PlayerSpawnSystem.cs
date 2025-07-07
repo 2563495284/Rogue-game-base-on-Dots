@@ -8,6 +8,7 @@ namespace Rogue
 {
     public partial struct PlayerSpawnSystem : ISystem
     {
+        private bool isInitialized;
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -20,8 +21,9 @@ namespace Rogue
         {
             state.Enabled = false;
             var config = SystemAPI.GetSingleton<Config>();
-            //spawn player
+            if (!isInitialized)
             {
+                isInitialized = true;
                 var playerEntity = state.EntityManager.Instantiate(config.PlayerPrefab);
                 var playerTransform = state.EntityManager.GetComponentData<LocalTransform>(playerEntity);
                 playerTransform.Position = new float3(0, 0, 0);

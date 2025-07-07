@@ -8,7 +8,6 @@ namespace Rogue
 {
     public partial struct PlayerSystem : ISystem
     {
-        private bool isInitialized;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -23,22 +22,20 @@ namespace Rogue
         public void OnUpdate(ref SystemState state)
         {
             var player = SystemAPI.GetSingletonEntity<Player>();
-
-            if (!isInitialized)
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            if (!state.EntityManager.HasComponent<Controller>(player))
             {
-                isInitialized = true;
-                var configEntity = SystemAPI.GetSingletonEntity<Config>();
-                var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
+                var go = GameObject.FindFirstObjectByType<PlayerController>().gameObject;
+                GameObject.FindFirstObjectByType<PlayerController>().InitializeECS();
+                ecb.AddComponent(player, new Controller(go));
+            }
+            ecb.Playback(state.EntityManager);
 
-                // 使用 EntityCommandBuffer 来延迟结构性更改
-                var ecb = new EntityCommandBuffer(Allocator.Temp);
-                //playerController
-                {
-                    var go = GameObject.Instantiate(configManaged.PlayerControllerPrefabGO);
-                    // 延迟添加组件
-                    ecb.AddComponent(player, new Controller(go));
-                }
-                ecb.Playback(state.EntityManager);
+            if (state.EntityManager.HasComponent<Controller>(player))
+            {
+                var controller = state.EntityManager.GetComponentObject<Controller>(player);
+                var transform = SystemAPI.GetComponent<LocalTransform>(player);
+                TransformUtils.SyncTransform(controller.ControllerGO.transform, transform);
             }
 
         }

@@ -82,7 +82,7 @@ MonoBehaviour:
   EnemyAnimationSystem: 1
   WeaponSystem: 1
   BulletSpawnSystem: 1
-  BulletMovementSystem: 0
+  BulletMovementSystem: 1
   BulletLifetimeSystem: 0
   BulletAnimationSystem: 1
   BulletCollisionSystem: 0

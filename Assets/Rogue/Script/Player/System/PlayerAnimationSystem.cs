@@ -51,7 +51,7 @@ namespace Rogue
                 var transform = SystemAPI.GetComponent<LocalTransform>(player);
 
                 // 完整的Transform同步
-                SyncTransform(playerAnimation.AnimatedGO.transform, transform);
+                TransformUtils.SyncTransform(playerAnimation.AnimatedGO.transform, transform);
 
                 // 动画状态同步
                 var animator = playerAnimation.AnimatedGO.GetComponent<Animator>();
@@ -66,14 +66,6 @@ namespace Rogue
             }
         }
 
-        /// <summary>
-        /// 将ECS的LocalTransform同步到GameObject的Transform
-        /// </summary>
-        private static void SyncTransform(Transform goTransform, LocalTransform ecsTransform)
-        {
-            goTransform.position = ecsTransform.Position;
-            goTransform.rotation = ecsTransform.Rotation;
-            goTransform.localScale = Vector3.one * ecsTransform.Scale;
-        }
+
     }
 }
