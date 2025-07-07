@@ -68,7 +68,7 @@ namespace Rogue
                     // 更新移动组件 - 使用配置中的默认速度
                     var movement = new BulletMovement
                     {
-                        Direction = math.normalize(spawnRequest.Direction),
+                        Direction = spawnRequest.Direction,
                         StartPosition = spawnRequest.SpawnPosition,
                     };
                     ecb.SetComponent(bulletEntity, movement);

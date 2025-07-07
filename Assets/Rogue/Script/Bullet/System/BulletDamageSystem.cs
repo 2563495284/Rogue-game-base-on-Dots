@@ -10,8 +10,8 @@ namespace Rogue
     /// <summary>
     /// 子弹伤害系统 - 处理子弹与敌人的碰撞检测和伤害触发
     /// </summary>
-     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(BulletCollisionSystem))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(BulletCollisionEventSystem))]
     [BurstCompile]
     public partial struct BulletDamageSystem : ISystem
     {
@@ -29,4 +29,4 @@ namespace Rogue
             // 这里可以添加其他伤害相关的逻辑
         }
     }
-} 
+}

@@ -28,7 +28,7 @@ namespace Rogue
                      SystemAPI.Query<RefRO<Enemy>, RefRO<LocalTransform>>().WithNone<EnemyAnimation>().WithEntityAccess())
             {
                 var go = GameObject.Instantiate(configManaged.EnemyAnimatedPrefabGO);
-                var enemyAnimation = new EnemyAnimation(go);
+                var enemyAnimation = new EnemyAnimation(go, entity);
                 // 延迟添加组件
                 ecb.AddComponent(entity, enemyAnimation);
             }
@@ -36,7 +36,7 @@ namespace Rogue
 
             // 持续同步Transform和动画状态
             var isMovingId = Animator.StringToHash("bRunning");
-            
+
             foreach (var (enemy, transform, enemyAnimation) in
                      SystemAPI.Query<RefRO<Enemy>, RefRO<LocalTransform>, EnemyAnimation>())
             {

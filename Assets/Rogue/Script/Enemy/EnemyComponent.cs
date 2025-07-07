@@ -10,10 +10,11 @@ namespace Rogue
     public class EnemyAnimation : IComponentData
     {
         public GameObject AnimatedGO;
-        
-        public EnemyAnimation(GameObject animatedGO)
+        public Entity owner;
+        public EnemyAnimation(GameObject animatedGO, Entity owner)
         {
             AnimatedGO = animatedGO;
+            this.owner = owner;
         }
         public EnemyAnimation()
         {

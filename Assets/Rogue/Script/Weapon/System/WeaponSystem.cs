@@ -82,17 +82,9 @@ namespace Rogue
             foreach (var (request, entity) in SystemAPI.Query<RefRO<WeaponOperationRequest>>().WithEntityAccess())
             {
                 var requestData = request.ValueRO;
-                
+
                 // 跳过已处理的请求
                 if (requestData.IsProcessed) continue;
-                
-                // 验证请求有效性
-                if (!requestData.IsValid)
-                {
-                    Debug.LogError($"无效的武器操作请求：操作类型={requestData.OperationType}, 槽位={requestData.SlotIndex}, 武器索引={requestData.WeaponPrefabIndex}");
-                    ecb.DestroyEntity(entity);
-                    continue;
-                }
 
                 switch (requestData.OperationType)
                 {
@@ -469,21 +461,16 @@ namespace Rogue
             // 获取玩家位置作为子弹生成位置（避免武器位置过远的问题）
             var playerTransform = state.EntityManager.GetComponentData<LocalTransform>(owner);
             var bulletPosition = playerTransform.Position;
-            var bulletDirection = playerTransform.Forward(); // 使用玩家朝向
+
+            // 2D游戏：根据玩家旋转计算射击方向（XY平面）
+            var playerRotation = playerTransform.Rotation;
+            var bulletDirection = math.rotate(playerRotation, new float3(1, 0, 0)); // 默认朝向X轴正方向
 
             // 生成多发子弹
             for (int i = 0; i < weapon.BulletNum; i++)
             {
-                // 如果有多发子弹，添加一些随机散射
-                var finalDirection = bulletDirection;
-                if (weapon.BulletNum > 1)
-                {
-                    var angle = (i - (weapon.BulletNum - 1) * 0.5f) * 0.1f; // 散射角度
-                    finalDirection = math.rotate(quaternion.RotateY(angle), bulletDirection);
-                }
-
                 // 创建子弹发射请求
-                CreateBulletRequest(ecb, bulletPosition, finalDirection, weapon, owner);
+                CreateBulletRequest(ecb, bulletPosition, math.normalize(bulletDirection), weapon, owner);
             }
 
             Debug.Log($"武器发射！生成了 {weapon.BulletNum} 发子弹请求，位置={bulletPosition}");
@@ -525,7 +512,7 @@ namespace Rogue
             // 获取EntityCommandBuffer
             var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                 .CreateCommandBuffer(state.WorldUnmanaged);
-            
+
             CreateBulletRequest(ecb, position, direction, weapon, owner);
         }
     }

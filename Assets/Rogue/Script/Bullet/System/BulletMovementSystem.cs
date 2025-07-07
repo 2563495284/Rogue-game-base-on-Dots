@@ -55,6 +55,7 @@ namespace Rogue
                 // {
                 //     var lookDirection = math.normalize(bulletMovement.Direction);
                 //     currentTransform.Rotation = quaternion.LookRotation(lookDirection, math.forward());
+                //     Debug.Log($"lookRotation: {currentTransform.Rotation}");
                 // }
 
                 // 更新Transform组件

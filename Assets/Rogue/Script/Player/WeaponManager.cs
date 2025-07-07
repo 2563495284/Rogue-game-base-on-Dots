@@ -76,7 +76,7 @@ namespace Rogue
 
             // 创建武器操作请求实体（槽位索引设为-1，表示自动分配）
             var requestEntity = entityManager.CreateEntity();
-            entityManager.AddComponentData(requestEntity, WeaponOperationRequest.CreateAddRequest(weaponPrefabIndex, slotIndex, priority));
+            entityManager.AddComponentData(requestEntity, WeaponOperationRequest.CreateAddRequest(weaponPrefabIndex, -1, priority));
 
             if (showDebugInfo)
             {

@@ -22,20 +22,36 @@ namespace Rogue
             var configEntity = SystemAPI.GetSingletonEntity<Config>();
             var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
 
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            // 创建第一个ECB用于添加组件
+            var addComponentECB = new EntityCommandBuffer(Allocator.Temp);
 
             foreach (var (bullet, transform, entity) in
                      SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>>().WithNone<BulletAnimation>().WithEntityAccess())
             {
                 var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bullet.ValueRO.BulletAnimId]);
                 var bulletAnimation = new BulletAnimation(go);
-                ecb.AddComponent(entity, bulletAnimation);
+
+                // 添加碰撞处理器组件
+                var collisionHandler = go.GetComponent<BulletCollisionHandler>();
+                if (collisionHandler == null)
+                {
+                    collisionHandler = go.AddComponent<BulletCollisionHandler>();
+                }
+
+                // 初始化碰撞处理器
+                collisionHandler.Initialize(entity);
+
+                addComponentECB.AddComponent(entity, bulletAnimation);
             }
-            ecb.Playback(state.EntityManager);
+            addComponentECB.Playback(state.EntityManager);
+            addComponentECB.Dispose();
+
+            // 创建第二个ECB用于销毁实体
+            var destroyECB = new EntityCommandBuffer(Allocator.Temp);
 
             var isMovingId = Animator.StringToHash("bRunning");
-            foreach (var (bullet, transform, bulletAnimation) in
-                     SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>, BulletAnimation>())
+            foreach (var (bullet, transform, bulletAnimation, entity) in
+                     SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>, BulletAnimation>().WithEntityAccess())
             {
                 var animator = bulletAnimation.AnimatedGO.GetComponent<Animator>();
                 if (animator == null) continue;
@@ -43,9 +59,63 @@ namespace Rogue
                 // 完整的Transform同步
                 SyncTransform(animator.transform, transform.ValueRO);
 
-                // 动画状态同步
-                animator.SetBool(isMovingId, true);
+                // 检查动画是否播放完成
+                if (IsAnimationComplete(animator))
+                {
+                    // 动画播放完成，销毁子弹
+                    DestroyBullet(bulletAnimation.AnimatedGO, entity, destroyECB);
+                }
+                else
+                {
+                    animator.SetBool(isMovingId, true);
+                }
             }
+
+            // 执行EntityCommandBuffer中的所有销毁命令
+            destroyECB.Playback(state.EntityManager);
+            destroyECB.Dispose();
+        }
+
+        /// <summary>
+        /// 检查动画是否播放完成
+        /// </summary>
+        /// <param name="animator">动画控制器</param>
+        /// <returns>动画是否完成</returns>
+        private static bool IsAnimationComplete(Animator animator)
+        {
+            if (animator == null) return true;
+
+            // 获取当前动画状态信息
+            var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+            var exitStateHash = Animator.StringToHash("exit");
+            var exitStateHashCapital = Animator.StringToHash("Exit");
+            if (stateInfo.shortNameHash == exitStateHash || stateInfo.shortNameHash == exitStateHashCapital)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 销毁子弹及其动画GameObject
+        /// </summary>
+        /// <param name="bulletGO">子弹的GameObject</param>
+        /// <param name="bulletEntity">子弹实体</param>
+        /// <param name="ecb">实体命令缓冲区</param>
+        private static void DestroyBullet(GameObject bulletGO, Entity bulletEntity, EntityCommandBuffer ecb)
+        {
+            // 销毁GameObject
+            if (bulletGO != null)
+            {
+                Object.Destroy(bulletGO);
+            }
+
+            // 销毁DOTS实体
+            ecb.DestroyEntity(bulletEntity);
+
+            Debug.Log($"子弹销毁: Entity={bulletEntity.Index}");
         }
 
         /// <summary>
