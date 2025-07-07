@@ -45,16 +45,19 @@ namespace Rogue
                     switch (keyName)
                     {
                         case "1":
-                            weaponManager.AddWeapon(0, 0, 1.0f);
+                            weaponManager.AddWeapon(0);
                             break;
                         case "2":
-                            weaponManager.AddWeapon(1, 1, 0.8f);
+                            weaponManager.AddWeapon(1);
                             break;
                         case "3":
-                            weaponManager.AddWeapon(2, 2, 0.6f);
+                            weaponManager.AddWeapon(2);
                             break;
                         case "4":
-                            weaponManager.AddWeapon(3, 3, 0.4f);
+                            weaponManager.AddWeapon(3);
+                            break;
+                        case "-":
+                            weaponManager.RemoveLastWeapon();  // 删除最后一个武器
                             break;
                     }
                 }

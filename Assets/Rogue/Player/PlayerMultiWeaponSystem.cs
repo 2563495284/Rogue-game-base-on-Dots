@@ -30,7 +30,6 @@ namespace Rogue
         private EntityQuery weaponRequestQuery;
         private EntityQuery playerWeaponQuery;
 
-        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Config>();
@@ -139,19 +138,25 @@ namespace Rogue
             // 获取武器槽位缓冲区
             var weaponSlots = state.EntityManager.GetBuffer<WeaponSlot>(playerEntity);
 
-            if (request.SlotIndex < 0 || request.SlotIndex >= weaponSlots.Length)
+            // 动态分配槽位索引
+            if (request.SlotIndex == -1)
             {
-                Debug.LogError($"槽位索引超出范围：{request.SlotIndex}");
-                return;
+                request.SlotIndex = weaponSlots.Length; // 新槽位就是当前长度
             }
 
-            // 检查槽位是否已被占用
-            if (weaponSlots[request.SlotIndex].IsActive)
+            // 检查是否需要扩展槽位
+            bool needNewSlot = request.SlotIndex >= weaponSlots.Length;
+
+            if (!needNewSlot)
             {
-                // 先移除旧武器
-                if (weaponSlots[request.SlotIndex].WeaponEntity != Entity.Null)
+                // 检查现有槽位是否已被占用
+                if (weaponSlots[request.SlotIndex].IsActive)
                 {
-                    ecb.DestroyEntity(weaponSlots[request.SlotIndex].WeaponEntity);
+                    // 先移除旧武器
+                    if (weaponSlots[request.SlotIndex].WeaponEntity != Entity.Null)
+                    {
+                        ecb.DestroyEntity(weaponSlots[request.SlotIndex].WeaponEntity);
+                    }
                 }
             }
 
@@ -201,10 +206,7 @@ namespace Rogue
                 IsAdd = true
             });
 
-            // 更新武器管理器
-            var weaponManager = state.EntityManager.GetComponentData<WeaponManager>(playerEntity);
-            weaponManager.ActiveWeapons++;
-            ecb.SetComponent(playerEntity, weaponManager);
+            // 注：不再需要手动更新武器数量，因为会通过槽位缓冲区动态计算
 
             // 销毁GameObject（我们只需要实体）
             GameObject.Destroy(weaponGO);
@@ -262,10 +264,7 @@ namespace Rogue
                 IsAdd = false
             });
 
-            // 更新武器管理器
-            var weaponManager = state.EntityManager.GetComponentData<WeaponManager>(playerEntity);
-            weaponManager.ActiveWeapons--;
-            ecb.SetComponent(playerEntity, weaponManager);
+            // 注：不再需要手动更新武器数量，会通过移除槽位自动更新
 
             Debug.Log($"系统成功移除槽位 {request.SlotIndex} 的武器");
         }
@@ -564,6 +563,7 @@ namespace Rogue
             state.RequireForUpdate<WeaponSlotUpdateRequest>();
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
@@ -584,21 +584,29 @@ namespace Rogue
                 // 获取武器槽位缓冲区
                 var weaponSlots = state.EntityManager.GetBuffer<WeaponSlot>(request.PlayerEntity);
 
-                if (request.SlotIndex < 0 || request.SlotIndex >= weaponSlots.Length)
-                {
-                    Debug.LogError($"武器槽位索引超出范围：{request.SlotIndex}");
-                    ecb.DestroyEntity(requestEntity);
-                    continue;
-                }
-
                 if (request.IsAdd)
                 {
-                    // 添加武器到槽位
-                    var slot = weaponSlots[request.SlotIndex];
-                    slot.WeaponEntity = requestEntity; // 使用请求实体作为武器实体
-                    slot.IsActive = true;
-                    slot.Priority = request.Priority;
-                    weaponSlots[request.SlotIndex] = slot;
+                    // 添加武器：动态扩展槽位
+                    if (request.SlotIndex >= weaponSlots.Length)
+                    {
+                        // 需要扩展槽位
+                        weaponSlots.Add(new WeaponSlot
+                        {
+                            WeaponEntity = requestEntity,
+                            SlotIndex = request.SlotIndex,
+                            IsActive = true,
+                            Priority = request.Priority
+                        });
+                    }
+                    else
+                    {
+                        // 更新现有槽位
+                        var slot = weaponSlots[request.SlotIndex];
+                        slot.WeaponEntity = requestEntity;
+                        slot.IsActive = true;
+                        slot.Priority = request.Priority;
+                        weaponSlots[request.SlotIndex] = slot;
+                    }
 
                     // 移除更新请求组件，将实体转换为纯武器实体
                     ecb.RemoveComponent<WeaponSlotUpdateRequest>(requestEntity);
@@ -607,17 +615,25 @@ namespace Rogue
                 }
                 else
                 {
-                    // 移除武器槽位
-                    var slot = weaponSlots[request.SlotIndex];
-                    slot.WeaponEntity = Entity.Null;
-                    slot.IsActive = false;
-                    slot.Priority = 0;
-                    weaponSlots[request.SlotIndex] = slot;
+                    // 移除武器：删除槽位并重新整理索引
+                    if (request.SlotIndex < weaponSlots.Length)
+                    {
+                        // 移除指定槽位
+                        weaponSlots.RemoveAt(request.SlotIndex);
+
+                        // 重新整理后续槽位的索引
+                        for (int i = request.SlotIndex; i < weaponSlots.Length; i++)
+                        {
+                            var slot = weaponSlots[i];
+                            slot.SlotIndex = i;
+                            weaponSlots[i] = slot;
+                        }
+                    }
 
                     // 销毁临时请求实体
                     ecb.DestroyEntity(requestEntity);
 
-                    Debug.Log($"武器槽位更新：移除槽位 {request.SlotIndex} 的武器");
+                    Debug.Log($"武器槽位更新：移除槽位 {request.SlotIndex} 的武器并重新整理索引");
                 }
             }
 

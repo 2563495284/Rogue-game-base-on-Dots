@@ -49,13 +49,12 @@ namespace Rogue
         }
 
         /// <summary>
-        /// 添加武器到指定槽位
+        /// 添加武器（自动创建新槽位）
         /// </summary>
-        /// <param name="weaponPrefab">武器预制体</param>
-        /// <param name="slotIndex">槽位索引</param>
+        /// <param name="weaponPrefabIndex">武器预制体索引</param>
         /// <param name="priority">优先级</param>
         /// <returns>是否成功添加</returns>
-        public bool AddWeapon(int weaponPrefabIndex, int slotIndex, float priority = 1.0f)
+        public bool AddWeapon(int weaponPrefabIndex, float priority = 1.0f)
         {
             if (playerEntity == Entity.Null || entityManager == null)
             {
@@ -63,19 +62,28 @@ namespace Rogue
                 return false;
             }
 
-            // 获取武器预制体索引
+            // 检查武器数量限制
+            var weaponManager = entityManager.GetComponentData<WeaponManager>(playerEntity);
+            var weaponSlots = entityManager.GetBuffer<WeaponSlot>(playerEntity);
+
+            if (!weaponManager.CanAddWeapon(weaponSlots.Length))
+            {
+                Debug.LogWarning($"已达到最大武器数量限制：{weaponManager.MaxWeaponSlots}");
+                return false;
+            }
+
             if (weaponPrefabIndex == -1)
             {
                 Debug.LogError("武器预制体未在列表中找到！");
                 return false;
             }
 
-            // 创建武器操作请求实体
+            // 创建武器操作请求实体（槽位索引设为-1，表示自动分配）
             var requestEntity = entityManager.CreateEntity();
             entityManager.AddComponentData(requestEntity, new WeaponOperationRequest
             {
                 OperationType = WeaponOperationType.Add,
-                SlotIndex = slotIndex,
+                SlotIndex = -1,  // 自动分配槽位
                 Priority = priority,
                 WeaponPrefabEntity = new Entity { Index = weaponPrefabIndex, Version = 0 }, // 使用索引作为临时标识
                 IsProcessed = false
@@ -83,13 +91,36 @@ namespace Rogue
 
             if (showDebugInfo)
             {
-                Debug.Log($"创建添加武器请求：槽位{slotIndex}，优先级{priority}");
+                Debug.Log($"创建添加武器请求：自动分配槽位，优先级{priority}");
             }
 
             return true;
         }
 
 
+
+        /// <summary>
+        /// 移除最后一个武器（最新添加的武器）
+        /// </summary>
+        /// <returns>是否成功移除</returns>
+        public bool RemoveLastWeapon()
+        {
+            if (playerEntity == Entity.Null || entityManager == null)
+            {
+                Debug.LogError("ECS环境未准备好！");
+                return false;
+            }
+
+            var weaponSlots = entityManager.GetBuffer<WeaponSlot>(playerEntity);
+            if (weaponSlots.Length == 0)
+            {
+                Debug.LogWarning("没有武器可以移除！");
+                return false;
+            }
+
+            // 移除最后一个武器
+            return RemoveWeapon(weaponSlots.Length - 1);
+        }
 
         /// <summary>
         /// 移除指定槽位的武器
@@ -196,9 +227,17 @@ namespace Rogue
             var weaponManager = entityManager.GetComponentData<WeaponManager>(playerEntity);
             var weaponSlots = entityManager.GetBuffer<WeaponSlot>(playerEntity);
 
+            // 计算当前激活的武器数量
+            int activeWeapons = 0;
+            for (int i = 0; i < weaponSlots.Length; i++)
+            {
+                if (weaponSlots[i].IsActive)
+                    activeWeapons++;
+            }
+
             string info = $"武器管理器信息:\n";
             info += $"射击模式: {weaponManager.FireMode}\n";
-            info += $"激活武器数: {weaponManager.ActiveWeapons}/{weaponManager.MaxWeaponSlots}\n";
+            info += $"当前武器数: {activeWeapons}/{weaponManager.MaxWeaponSlots}\n";
             info += $"当前武器索引: {weaponManager.CurrentWeaponIndex}\n\n";
 
             info += "武器槽位详情:\n";

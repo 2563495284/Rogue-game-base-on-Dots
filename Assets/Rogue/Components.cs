@@ -196,10 +196,30 @@ namespace Rogue
     // 武器管理器组件
     public struct WeaponManager : IComponentData
     {
-        public int MaxWeaponSlots;      // 最大武器槽位数
-        public int ActiveWeapons;       // 当前激活的武器数量
+        public int MaxWeaponSlots;      // 最大武器槽位数（限制）
         public WeaponFireMode FireMode; // 射击模式
         public int CurrentWeaponIndex;  // 当前武器索引（单发模式使用）
+
+        /// <summary>
+        /// 检查是否可以添加更多武器
+        /// </summary>
+        /// <param name="currentWeaponCount">当前武器数量</param>
+        /// <returns>是否可以添加</returns>
+        public readonly bool CanAddWeapon(int currentWeaponCount)
+        {
+            return currentWeaponCount < MaxWeaponSlots;
+        }
+
+        /// <summary>
+        /// 获取下一个武器索引（用于循环切换）
+        /// </summary>
+        /// <param name="weaponCount">总武器数量</param>
+        /// <returns>下一个索引</returns>
+        public readonly int GetNextWeaponIndex(int weaponCount)
+        {
+            if (weaponCount <= 0) return 0;
+            return (CurrentWeaponIndex + 1) % weaponCount;
+        }
     }
 
     // 武器射击模式
@@ -232,8 +252,8 @@ namespace Rogue
     // 武器操作类型
     public enum WeaponOperationType
     {
-        Add,
-        Remove,
+        Add,// 添加武器（自动增加槽位）
+        Remove,// 移除武器（自动减少槽位）
         ChangePriority,
         ChangeFireMode
     }

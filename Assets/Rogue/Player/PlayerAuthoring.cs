@@ -10,7 +10,7 @@ namespace Rogue
         public float moveSpeed = 5f;
 
         [Header("武器设置")]
-        public int maxWeaponSlots = 4;
+        public int maxWeaponSlots = 8;            // 最大武器数量限制
         public WeaponFireMode defaultFireMode = WeaponFireMode.Sequential;
         public WeaponAuthoring[] initialWeapons;  // 初始武器配置
 
@@ -30,25 +30,14 @@ namespace Rogue
                 AddComponent(entity, new WeaponManager
                 {
                     MaxWeaponSlots = authoring.maxWeaponSlots,
-                    ActiveWeapons = 0,
                     FireMode = authoring.defaultFireMode,
                     CurrentWeaponIndex = 0
                 });
 
-                // 添加武器槽位缓冲区
+                // 添加武器槽位缓冲区（初始为空，动态添加）
                 var weaponSlots = AddBuffer<WeaponSlot>(entity);
 
-                // 初始化武器槽位
-                for (int i = 0; i < authoring.maxWeaponSlots; i++)
-                {
-                    weaponSlots.Add(new WeaponSlot
-                    {
-                        WeaponEntity = Entity.Null,
-                        SlotIndex = i,
-                        IsActive = false,
-                        Priority = 0
-                    });
-                }
+                // 注：槽位将在添加武器时动态创建
             }
         }
     }
