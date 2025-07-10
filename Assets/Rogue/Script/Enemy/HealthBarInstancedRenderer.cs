@@ -113,7 +113,11 @@ namespace Rogue
         protected override void OnUpdate()
         {
             if (mainCamera == null || healthBarMaterial == null)
+            {
+                if (mainCamera == null) Debug.LogError("MainCamera is null!");
+                if (healthBarMaterial == null) Debug.LogError("HealthBarMaterial is null!");
                 return;
+            }
 
             // 清空上一帧的数据
             instanceData.Clear();
@@ -130,27 +134,34 @@ namespace Rogue
         {
             float3 cameraPosition = mainCamera.transform.position;
 
+            int totalEnemies = 0;
+            int validEnemies = 0;
+
             // 查询所有带血量的敌人（使用GPU Instance标记）
             foreach (var (enemy, health, transform, entity) in
                      SystemAPI.Query<RefRO<Enemy>, RefRO<EnemyHealth>, RefRO<LocalTransform>>()
                          .WithAll<HealthBarInstancedTag>()
                          .WithEntityAccess())
             {
+                totalEnemies++;
+
                 // 检查血量是否需要显示
-                if (health.ValueRO.CurrentHealth >= health.ValueRO.MaxHealth || health.ValueRO.IsDead)
-                    continue;
+                // if (health.ValueRO.CurrentHealth >= health.ValueRO.MaxHealth || health.ValueRO.IsDead)
+                //     continue;
+
+                validEnemies++;
 
                 float3 worldPos = transform.ValueRO.Position;
                 float3 healthBarWorldPos = worldPos + new float3(0, renderConfig.yOffset, 0);
 
                 // 距离剔除
                 float distance = math.distance(cameraPosition, healthBarWorldPos);
-                if (renderConfig.useDistanceCulling && distance > renderConfig.maxRenderDistance)
-                    continue;
+                // if (renderConfig.useDistanceCulling && distance > renderConfig.maxRenderDistance)
+                //     continue;
 
                 // 视锥剔除
-                if (renderConfig.useFrustumCulling && !IsInCameraFrustum(healthBarWorldPos))
-                    continue;
+                // if (renderConfig.useFrustumCulling && !IsInCameraFrustum(healthBarWorldPos))
+                //     continue;
 
                 // 计算屏幕坐标
                 Vector3 screenPos = mainCamera.WorldToScreenPoint(healthBarWorldPos);
@@ -185,11 +196,23 @@ namespace Rogue
                 instanceMatrices.Add(Matrix4x4.identity);
 
             }
+
+            // 调试信息
+            if (totalEnemies > 0)
+            {
+                Debug.Log($"Health Bar Debug: Found {totalEnemies} enemies with tag, {validEnemies} valid for rendering, {instanceData.Length} final instances");
+            }
         }
 
         private void RenderHealthBarBatches()
         {
-            if (instanceData.Length == 0) return;
+            if (instanceData.Length == 0)
+            {
+                Debug.LogWarning("No health bar instances to render");
+                return;
+            }
+
+            Debug.Log($"Rendering {instanceData.Length} health bar instances in batches");
 
             // 分批渲染
             for (int i = 0; i < instanceData.Length; i += MAX_INSTANCES_PER_BATCH)
@@ -225,14 +248,20 @@ namespace Rogue
             propertyBlock.SetVectorArray(ColorOverrideID, colorOverrideArray);
             propertyBlock.SetVectorArray(UITransformID, uiTransformArray);
 
+            // 创建RenderParams
+            var renderParams = new RenderParams(healthBarMaterial)
+            {
+                worldBounds = new Bounds(Vector3.zero, Vector3.one * 1000f), // 设置一个较大的包围盒
+                matProps = propertyBlock
+            };
+
             // 执行GPU Instance渲染
-            Graphics.DrawMeshInstanced(
+            Graphics.RenderMeshInstanced(
+                renderParams,
                 quadMesh,
                 0,
-                healthBarMaterial,
                 matrices,
-                batchSize,
-                propertyBlock
+                batchSize
             );
         }
 
