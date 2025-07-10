@@ -216,8 +216,8 @@
     <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\RenderTargetHandle.cs" />
     <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\Data\UniversalRenderPipelineAsset.DefaultResources.cs" />
     <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\Data\RenderStateData.cs" />
-    <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\FrameData\UniversalLightData.cs" />
     <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\Debug\DebugHandler.cs" />
+    <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\FrameData\UniversalLightData.cs" />
     <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\Decal\Entities\DecalDrawSystem.cs" />
     <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\Passes\PostProcessPass.cs" />
     <Compile Include="Library\PackageCache\com.unity.render-pipelines.universal@5ed031f116da\Runtime\Passes\CapturePass.cs" />

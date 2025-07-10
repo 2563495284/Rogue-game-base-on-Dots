@@ -312,8 +312,8 @@
     <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\Window\TimelineWindow_TimeArea.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\Manipulators\Sequence\MarkerHeaderTrackManipulator.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\Audio\AudioPlayableAssetEditor.cs" />
-    <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\inspectors\AnimationTrackInspector.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\TimelineUtility.cs" />
+    <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\inspectors\AnimationTrackInspector.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\inspectors\DirectorNamedColorInspector.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\Trackhead.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@c58b4ee65782\Editor\Localization\Localization.cs" />

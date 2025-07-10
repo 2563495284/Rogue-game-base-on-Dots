@@ -1172,7 +1172,6 @@
     <ProjectReference Include="Unity.Rider.Editor.csproj" />
     <ProjectReference Include="Unity.AI.Navigation.csproj" />
     <ProjectReference Include="Unity.Transforms.Hybrid.csproj" />
-    <ProjectReference Include="Unity.Splines.Editor.csproj" />
     <ProjectReference Include="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
     <ProjectReference Include="Unity.RenderPipelines.Universal.Shaders.csproj" />
     <ProjectReference Include="Unity.Cinemachine.Editor.csproj" />
@@ -1200,6 +1199,7 @@
     <ProjectReference Include="Unity.Rendering.LightTransport.Editor.csproj" />
     <ProjectReference Include="Unity.VisualScripting.Core.csproj" />
     <ProjectReference Include="Unity.RenderPipelines.Universal.Config.Runtime.csproj" />
+    <ProjectReference Include="Unity.Splines.Editor.csproj" />
     <ProjectReference Include="Unity.RenderPipelines.Universal.Editor.csproj" />
     <ProjectReference Include="Unity.Serialization.Editor.csproj" />
     <ProjectReference Include="Unity.Entities.Hybrid.csproj" />

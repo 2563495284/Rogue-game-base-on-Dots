@@ -161,8 +161,8 @@
     <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Obsolete\CinemachineComposerEditor.cs" />
     <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Obsolete\Cinemachine3rdPersonFollowEditor.cs" />
     <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Impulse\CinemachineImpulseChannels.cs" />
-    <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Editors\CinemachineSplineSmootherEditor.cs" />
     <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Obsolete\CinemachineFreeLookEditor.cs" />
+    <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Editors\CinemachineSplineSmootherEditor.cs" />
     <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Utility\CmPipelineComponentInspectorUtility.cs" />
     <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Editors\CinemachineClearShotEditor.cs" />
     <Compile Include="Library\PackageCache\com.unity.cinemachine@b66fdb7cd1f2\Editor\Windows\CinemachineCorePrefs.cs" />

@@ -136,8 +136,8 @@
     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Interfaces\IDeterministicIdentifiers.cs" />
     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Utilities\BuildCache.cs" />
     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Utilities\BuildInterfacesWrapper.cs" />
-    <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Tasks\GenerateBundleMaps.cs" />
     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Utilities\ValidationMethods.cs" />
+    <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Tasks\GenerateBundleMaps.cs" />
     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Tasks\AppendBundleHash.cs" />
     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Shared\BuildParameters.cs" />
     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@101dcb4353ce\Editor\Shared\BundleExplictObjectLayout.cs" />

@@ -255,8 +255,8 @@
     <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\Serialization\DotsSerialization.cs" />
     <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\Journaling\EntitiesJournaling+EntityViewArray.cs" />
     <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\Content\Delivery\RemoteContentLocation.cs" />
-    <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\Types\TypeHash.cs" />
     <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\Serialization\WeakReferenceId.cs" />
+    <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\Types\TypeHash.cs" />
     <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\Types\CalculateReaderWriterDependency.cs" />
     <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\ComponentSystemSorter.cs" />
     <Compile Include="Library\PackageCache\com.unity.entities@6a355619334f\Unity.Entities\LambdaJobConstruction\LambdaJobQueryConstructionMethods.cs" />
