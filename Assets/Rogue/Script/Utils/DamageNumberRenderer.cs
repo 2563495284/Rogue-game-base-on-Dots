@@ -7,6 +7,8 @@ using UnityEditor.U2D;
 using UnityEngine;
 using UnityEngine.U2D;
 using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Jobs;
 
 namespace Rogue
 {
@@ -73,8 +75,10 @@ namespace Rogue
         private readonly float damageNumberSpeed = 3.0f;
 
         // Shader 属性ID
-        private static readonly int InfoBufferID = Shader.PropertyToID("infoBuffer");
         private static readonly int TextUvID = Shader.PropertyToID("textUv");
+
+        private Dictionary<int, float> digitRatioMap = new Dictionary<int, float>();
+        private float atlasMaxHeightPx = 0f;    // 记录图集中数字的最大像素高度
 
         protected override void OnCreate()
         {
@@ -175,12 +179,13 @@ namespace Rogue
         {
             int total = styleCount * 40; // style * 10digit * 4vertex
             var uvArr = new float2[total];
-
+            digitRatioMap.Clear();
             for (int style = 0; style < styleCount; style++)
             {
                 for (int digit = 0; digit < 10; digit++)
                 {
-                    string name = $"spritesheet_{style * 10 + digit}";
+                    int number = style * 10 + digit;
+                    string name = $"spritesheet_{number}";
                     Sprite sp = sprites.FirstOrDefault(s => s.name == name);
                     if (sp == null)
                     {
@@ -206,6 +211,10 @@ namespace Rogue
                     uvArr[baseIdx + 1] = br; // vid 1  (bottom-right)
                     uvArr[baseIdx + 2] = tr; // vid 2  (top-right)
                     uvArr[baseIdx + 3] = tl; // vid 3  (top-left)
+
+                    float2 sizePx = new float2(sp.rect.width, sp.rect.height);
+                    if (sizePx.y > atlasMaxHeightPx) atlasMaxHeightPx = sizePx.y;
+                    digitRatioMap[number] = sizePx.x / sizePx.y;
                 }
             }
 
@@ -319,29 +328,24 @@ namespace Rogue
         /// </summary>
         private void UpdateDamageNumbers()
         {
-            float deltaTime = SystemAPI.Time.DeltaTime;
 
+            var job = new UpdateDamageNumberJob
+            {
+                deltaTime = SystemAPI.Time.DeltaTime,
+                damages = damageNumbers.AsDeferredJobArray()
+            };
+            JobHandle handle = job.Schedule(damageNumbers.Length, 64);
+            handle.Complete();
+            // 主线程删除过期元素（从后向前遍历）
             for (int i = damageNumbers.Length - 1; i >= 0; i--)
             {
                 var damageData = damageNumbers[i];
-
-                // 更新位置
-                damageData.worldPosition += damageData.velocity * deltaTime;
-
-                // 添加重力效果
-                damageData.velocity.y -= 9.81f * deltaTime;
-
-                // 更新时间
-                damageData.currentTime += deltaTime;
-
                 // 检查是否过期
                 if (damageData.currentTime >= damageData.lifetime)
                 {
                     damageNumbers.RemoveAtSwapBack(i);
                     continue;
                 }
-
-                damageNumbers[i] = damageData;
             }
         }
 
@@ -360,30 +364,47 @@ namespace Rogue
                 string damageStr = ((int)damageData.damage).ToString();
 
                 // 计算数字的总宽度，用于居中显示
-                float totalWidth = damageStr.Length * damageData.scale * 0.6f; // 假设每个数字宽度为scale*0.6
-                float startX = damageData.worldPosition.x - totalWidth * 0.5f;
+                float totalWidth = 0f;
+
+                for (int j = 0; j < damageStr.Length; j++)
+                {
+                    char ch = damageStr[j];
+                    int d = ch - '0';
+                    int number = (int)damageData.style * 10 + d;
+                    if (!digitRatioMap.TryGetValue(number, out var ratio)) ratio = 1;
+
+                    // 把 damageData.scale 视为“目标统一高度”
+                    float spriteScale = damageData.scale * (atlasMaxHeightPx / ratio); // 让每个sprite高度都达成目标高度
+
+                    float widthWorld = spriteScale * ratio; // world宽度
+                    totalWidth += widthWorld;
+                }
+                float cursorX = damageData.worldPosition.x - totalWidth * 0.5f;
 
                 // 为每个数字字符创建一个渲染实例
                 for (int j = 0; j < damageStr.Length; j++)
                 {
                     char c = damageStr[j];
-                    if (c >= '0' && c <= '9')
+                    if (c < '0' || c > '9') continue;
+
+                    int digit = c - '0';
+                    int number = (int)damageData.style * 10 + digit;
+                    if (!digitRatioMap.TryGetValue(number, out var ratio)) ratio = 1;
+
+                    float spriteScale = damageData.scale * (atlasMaxHeightPx / ratio);
+                    float widthWorld = spriteScale * ratio;
+                    float centerX = cursorX + widthWorld * 0.5f;
+
+                    var textTRS = new TextTRS
                     {
-                        int digit = c - '0';
+                        digitIndex = digit,
+                        styleIndex = (int)damageData.style,
+                        scale = new float2(spriteScale, spriteScale),
+                        wpos = new float2(centerX, damageData.worldPosition.y),
+                    };
+                    textTRSData.Add(textTRS);
 
-                        // 计算当前数字的位置
-                        float currentX = startX + j * damageData.scale * 0.6f;
-
-                        var textTRS = new TextTRS
-                        {
-                            digitIndex = digit,
-                            styleIndex = (int)damageData.style,
-                            scale = new float2(damageData.scale, damageData.scale),
-                            wpos = new float2(currentX, damageData.worldPosition.y),
-                        };
-
-                        textTRSData.Add(textTRS);
-                    }
+                    cursorX += widthWorld;
                 }
             }
         }
@@ -475,6 +496,59 @@ namespace Rogue
         {
             if (damageNumbers.IsCreated) damageNumbers.Dispose();
             if (textTRSData.IsCreated) textTRSData.Dispose();
+        }
+    }
+    // [BurstCompile]
+    // struct BuildInstanceJob : IJobParallelFor
+    // {
+    //     [ReadOnly] public NativeArray<DamageNumberData> damages;
+    //     [ReadOnly] public Dictionary<int, float2> digitSizeMap;
+    //     [NativeDisableParallelForRestriction] public NativeList<TextTRS>.ParallelWriter trsWriter;
+
+    //     public void Execute(int i)
+    //     {
+    //         var dmg = damages[i];
+    //         if (dmg.currentTime >= dmg.lifetime) return;          // 已过期，丢弃
+
+    //         float totalW = 0;
+    //         foreach (char ch in dmg.damage.ToString())
+    //         {
+    //             int d = ch - '0';
+    //             int number = (int)dmg.style * 10 + d;
+    //             float2 size = digitSizeMap[number];
+    //             totalW += size.x * dmg.scale;
+    //         }
+    //         float startX = dmg.worldPosition.x - totalW * .5f;
+
+    //         // 不在 Job 内做 string→char；这里示例只渲染个位数字
+    //         int digit = (int)dmg.damage % 10;
+
+    //         var trs = new TextTRS
+    //         {
+    //             digitIndex = digit,
+    //             styleIndex = 0,
+    //             scale = new float2(dmg.scale),
+    //             wpos = new float2(startX, dmg.worldPosition.y)
+    //         };
+    //         trsWriter.AddNoResize(trs);   // 线程安全写入
+    //     }
+    // }
+    [BurstCompile]
+    struct UpdateDamageNumberJob : IJobParallelFor
+    {
+        public float deltaTime;
+        public NativeArray<DamageNumberData> damages;
+
+        public void Execute(int i)
+        {
+            var d = damages[i];
+            d.currentTime += deltaTime;
+
+            // 位置/重力演示，如有需要可放开
+            d.worldPosition += d.velocity * deltaTime;
+            d.velocity.y -= 9.81f * deltaTime;
+
+            damages[i] = d;
         }
     }
 }
