@@ -88,6 +88,7 @@
     <Compile Include="Assets/Kickball/Step 2/PlayerAuthoring.cs" />
     <Compile Include="Assets/Kickball/Step 4/NewPlayerMovementSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Player/System/PlayerMovementSystem.cs" />
+    <Compile Include="Assets/Rogue/Script/Utils/DamageNumberRenderer.cs" />
     <Compile Include="Assets/Kickball/Step 1/ObstacleAuthoring.cs" />
     <Compile Include="Assets/Rogue/Script/Bullet/System/BulletAnimationSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Bullet/BulletController.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Assets/Kickball/Common/ExecuteAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 4/UIController.cs" />
     <Compile Include="Assets/Kickball/Step 5/BallKickingSystem.cs" />
+    <Compile Include="Assets/Rogue/Script/Enemy/DamageNumberSpawner.cs" />
     <Compile Include="Assets/Firefighters/Step 1/SpawnSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 4/UISystem.cs" />
     <Compile Include="Assets/Firefighters/Step 4/AnimationSystem.cs" />
@@ -167,6 +169,7 @@
     <None Include="Assets/TextMesh Pro/Shaders/SDFFunctions.hlsl" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />
     <None Include="Assets/Rogue/Common/atlas/arms_300/arms_300.txt" />
+    <None Include="Assets/Rogue/Common/Shaders/DamageNumber.shader" />
     <None Include="Assets/Rogue/Common/atlas/bullet_301/bullet_301.txt" />
     <None Include="Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader" />

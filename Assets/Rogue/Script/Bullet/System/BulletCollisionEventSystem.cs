@@ -110,6 +110,9 @@ namespace Rogue
             // 创建伤害效果
             CreateDamageEffect(ref state, collisionEvent.CollisionPosition, finalDamage, ecb);
 
+            // 创建伤害数字
+            CreateDamageNumber(ref state, collisionEvent.CollisionPosition, finalDamage, ecb);
+
             Debug.Log($"子弹对敌人造成 {finalDamage} 点伤害, 敌人剩余血量: {enemyHealth.CurrentHealth}");
         }
 
@@ -191,6 +194,21 @@ namespace Rogue
             });
         }
 
+        /// <summary>
+        /// 创建伤害数字
+        /// </summary>
+        private void CreateDamageNumber(ref SystemState state, float3 position, float damage, EntityCommandBuffer ecb)
+        {
+
+            var damageNumberEntity = ecb.CreateEntity();
+            ecb.AddComponent(damageNumberEntity, new DamageNumberTrigger
+            {
+                damage = damage,
+                isCritical = false,
+                position = position,
+                isTriggered = true
+            });
+        }
         /// <summary>
         /// 创建伤害效果
         /// </summary>

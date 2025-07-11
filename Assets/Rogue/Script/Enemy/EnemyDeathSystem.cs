@@ -220,32 +220,42 @@ namespace Rogue
     /// <summary>
     /// 敌人受伤事件系统 - 处理敌人受伤事件
     /// </summary>
-    [BurstCompile]
     public partial struct EnemyHitEventSystem : ISystem
     {
-        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             // 系统创建时的初始化
         }
 
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+            // var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
             // 处理受伤事件
-            foreach (var (hitEvent, entity) in SystemAPI.Query<EnemyHitEvent>().WithEntityAccess())
-            {
-                // 这里可以处理受伤事件
-                // 例如：播放受伤音效、显示伤害数字等
+            // foreach (var (hitEvent, transform, entity) in
+            //     SystemAPI.Query<EnemyHitEvent, RefRO<LocalTransform>>().WithEntityAccess())
+            // {
+            //     // 触发伤害数字显示
+            //     var damagePosition = transform.ValueRO.Position + new float3(0, 1, 0); // 在敌人头顶显示
 
-                // 移除受伤事件组件（一次性事件）
-                ecb.RemoveComponent<EnemyHitEvent>(entity);
-            }
+            //     DamageNumberHelper.TriggerDamageNumber(
+            //         state.EntityManager,
+            //         damagePosition,
+            //         hitEvent.Damage,
+            //         hitEvent.IsCritical
+            //     );
 
-            ecb.Playback(state.EntityManager);
-            ecb.Dispose();
+            //     // 这里可以处理其他受伤事件
+            //     // 例如：播放受伤音效、触发受伤特效等
+
+            //     Debug.Log($"Enemy hit for {hitEvent.Damage} damage at {damagePosition}");
+
+            //     // 移除受伤事件组件（一次性事件）
+            //     ecb.RemoveComponent<EnemyHitEvent>(entity);
+            // }
+
+            // ecb.Playback(state.EntityManager);
+            // ecb.Dispose();
         }
     }
 }
