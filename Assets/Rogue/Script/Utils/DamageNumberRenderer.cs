@@ -77,8 +77,7 @@ namespace Rogue
         // Shader 属性ID
         private static readonly int TextUvID = Shader.PropertyToID("textUv");
 
-        private Dictionary<int, float> digitRatioMap = new Dictionary<int, float>();
-        private float atlasMaxHeightPx = 0f;    // 记录图集中数字的最大像素高度
+        private Dictionary<int, float2> digitSizeMap = new Dictionary<int, float2>();
 
         protected override void OnCreate()
         {
@@ -141,7 +140,7 @@ namespace Rogue
             // infoBuffer = new ComputeBuffer(maxDigitInstances, System.Runtime.InteropServices.Marshal.SizeOf<TextTRS>());
 
             // 创建UV坐标缓冲区 (假设有10种样式，每种样式10个数字，每个数字4个UV坐标)
-            int uvCount = 10 * 10 * 4; // 样式数 * 数字数 * 顶点数
+            int uvCount = maxDamageNumbers * 10 * 4; // 样式数 * 数字数 * 顶点数
             textUvBuffer = new ComputeBuffer(uvCount, sizeof(float) * 2);
 
             Debug.Log($"ComputeBuffer initialized: infoBuffer={textUvBuffer.count}");
@@ -179,7 +178,7 @@ namespace Rogue
         {
             int total = styleCount * 40; // style * 10digit * 4vertex
             var uvArr = new float2[total];
-            digitRatioMap.Clear();
+            digitSizeMap.Clear();
             for (int style = 0; style < styleCount; style++)
             {
                 for (int digit = 0; digit < 10; digit++)
@@ -212,9 +211,8 @@ namespace Rogue
                     uvArr[baseIdx + 2] = tr; // vid 2  (top-right)
                     uvArr[baseIdx + 3] = tl; // vid 3  (top-left)
 
-                    float2 sizePx = new float2(sp.rect.width, sp.rect.height);
-                    if (sizePx.y > atlasMaxHeightPx) atlasMaxHeightPx = sizePx.y;
-                    digitRatioMap[number] = sizePx.x / sizePx.y;
+                    float2 sizePx = new float2(sp.rect.width / sp.pixelsPerUnit, sp.rect.height / sp.pixelsPerUnit);
+                    digitSizeMap.Add(number, sizePx);
                 }
             }
 
@@ -246,10 +244,10 @@ namespace Rogue
             quadMesh = new Mesh();
             quadMesh.vertices = new Vector3[]
             {
-                new Vector3(-0.5f, -0.5f, 0),
-                new Vector3(0.5f, -0.5f, 0),
-                new Vector3(0.5f, 0.5f, 0),
-                new Vector3(-0.5f, 0.5f, 0)
+                new Vector3(-50f, -50f, 0),
+                new Vector3(50f, -50f, 0),
+                new Vector3(50f, 50f, 0),
+                new Vector3(-50f, 50f, 0)
             };
             quadMesh.uv = new Vector2[]
             {
@@ -371,13 +369,9 @@ namespace Rogue
                     char ch = damageStr[j];
                     int d = ch - '0';
                     int number = (int)damageData.style * 10 + d;
-                    if (!digitRatioMap.TryGetValue(number, out var ratio)) ratio = 1;
+                    if (!digitSizeMap.TryGetValue(number, out float2 size)) size = new float2(0, 0);
 
-                    // 把 damageData.scale 视为“目标统一高度”
-                    float spriteScale = damageData.scale * (atlasMaxHeightPx / ratio); // 让每个sprite高度都达成目标高度
-
-                    float widthWorld = spriteScale * ratio; // world宽度
-                    totalWidth += widthWorld;
+                    totalWidth += size.x;
                 }
                 float cursorX = damageData.worldPosition.x - totalWidth * 0.5f;
 
@@ -389,17 +383,16 @@ namespace Rogue
 
                     int digit = c - '0';
                     int number = (int)damageData.style * 10 + digit;
-                    if (!digitRatioMap.TryGetValue(number, out var ratio)) ratio = 1;
+                    if (!digitSizeMap.TryGetValue(number, out float2 size)) size = new float2(0, 0);
 
-                    float spriteScale = damageData.scale * (atlasMaxHeightPx / ratio);
-                    float widthWorld = spriteScale * ratio;
+                    float widthWorld = size.x;
                     float centerX = cursorX + widthWorld * 0.5f;
 
                     var textTRS = new TextTRS
                     {
                         digitIndex = digit,
                         styleIndex = (int)damageData.style,
-                        scale = new float2(spriteScale, spriteScale),
+                        scale =damageData.scale,
                         wpos = new float2(centerX, damageData.worldPosition.y),
                     };
                     textTRSData.Add(textTRS);

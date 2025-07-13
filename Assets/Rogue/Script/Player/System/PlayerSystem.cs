@@ -30,14 +30,6 @@ namespace Rogue
                 ecb.AddComponent(player, new Controller(go));
             }
             ecb.Playback(state.EntityManager);
-
-            if (state.EntityManager.HasComponent<Controller>(player))
-            {
-                var controller = state.EntityManager.GetComponentObject<Controller>(player);
-                var transform = SystemAPI.GetComponent<LocalTransform>(player);
-                TransformUtils.SyncTransform(controller.ControllerGO.transform, transform);
-            }
-
         }
     }
 }

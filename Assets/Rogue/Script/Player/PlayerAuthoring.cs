@@ -10,6 +10,10 @@ namespace Rogue
         public float moveSpeed = 5f;
 
         [Header("武器设置")]
+
+        public float surroundRadius = 10f;
+        public float surroundSpeed = 5f;
+
         public int maxWeaponSlots = 8;            // 最大武器数量限制
         public WeaponFireMode defaultFireMode = WeaponFireMode.Sequential;
         public WeaponAuthoring[] initialWeapons;  // 初始武器配置
@@ -29,6 +33,8 @@ namespace Rogue
                 // 添加武器管理器组件
                 AddComponent(entity, new WeaponManager
                 {
+                    SurroundRadius = authoring.surroundRadius,
+                    SurroundSpeed = authoring.surroundSpeed,
                     MaxWeaponSlots = authoring.maxWeaponSlots,
                     FireMode = authoring.defaultFireMode,
                     CurrentWeaponIndex = 0

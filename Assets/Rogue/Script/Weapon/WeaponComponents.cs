@@ -45,6 +45,8 @@ namespace Rogue
     // 武器管理器组件
     public struct WeaponManager : IComponentData
     {
+        public float SurroundRadius;    // 环绕半径
+        public float SurroundSpeed;    // 环绕速度
         public int MaxWeaponSlots;      // 最大武器槽位数
         public int ActiveWeapons;       // 当前激活的武器数量
         public WeaponFireMode FireMode; // 射击模式

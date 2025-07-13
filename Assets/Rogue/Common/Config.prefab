@@ -49,8 +49,8 @@ MonoBehaviour:
   PlayerAnimatedPrefabGO: {fileID: 7100645380113196838, guid: 6c9be4e421e0c5e4692b0a6d059bbe6a, type: 3}
   PlayerControllerGO: {fileID: 7100645380113196838, guid: 39b7c73342b7849608b4096b4cfc8e40, type: 3}
   NumEnemies: 100
-  EnemySpawnAreaSize: 10
-  EnemyMoveSpeed: 0.5
+  EnemySpawnAreaSize: 400
+  EnemyMoveSpeed: 20
   EnemyDirectionChangeInterval: 5
   EnemyPrefabGO: {fileID: 7617736419631500257, guid: 39ae9437ced724b6e927f2ff00cf3906, type: 3}
   EnemyAnimatedPrefabGO: {fileID: 7617736419631500257, guid: 03e90cf68354a284692db04c324fb19a, type: 3}
@@ -83,7 +83,7 @@ MonoBehaviour:
   WeaponSystem: 1
   BulletSpawnSystem: 1
   BulletMovementSystem: 1
-  BulletLifetimeSystem: 0
+  BulletLifetimeSystem: 1
   BulletAnimationSystem: 1
-  BulletCollisionSystem: 0
-  BulletDamageSystem: 0
+  BulletCollisionSystem: 1
+  BulletDamageSystem: 1

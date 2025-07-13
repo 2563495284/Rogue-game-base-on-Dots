@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -58,19 +59,37 @@ namespace Rogue
             // 更新所有武器的冷却时间
             UpdateWeaponCooldowns(ref state, deltaTime);
 
-            // 处理玩家的武器射击（只有在没有待处理的武器请求时才射击）
-            if (weaponRequestQuery.IsEmpty)
+            //更新武器位置
+            var weaponPositions = new NativeList<float3>(Allocator.TempJob);
+            foreach (var (weapon, transform) in SystemAPI.Query<RefRO<Weapon>, RefRW<LocalTransform>>())
             {
-                foreach (var (player, weaponManager, transform, weaponSlots, entity) in
-                         SystemAPI.Query<RefRO<Player>, RefRW<WeaponManager>, RefRO<LocalTransform>, DynamicBuffer<WeaponSlot>>()
-                             .WithEntityAccess())
-                {
-                    if (ShouldShoot(ref state, entity))
-                    {
-                        FireWeapons(ref state, weaponManager, transform.ValueRO, weaponSlots, entity, configManaged);
-                    }
-                }
+                weaponPositions.Add(transform.ValueRO.Position);
             }
+            var playerEntity = SystemAPI.GetSingletonEntity<Player>();
+            var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
+            var weaponSlots = SystemAPI.GetBuffer<WeaponSlot>(playerEntity);
+            var weaponManager = SystemAPI.GetComponent<WeaponManager>(playerEntity);
+            var updateWeaponPositionsJob = new CalcWeaponPositionJob
+            {
+                playerPos = playerTransform.Position,
+                weaponCount = weaponSlots.Length,
+                radius = weaponManager.SurroundRadius,
+                speed = weaponManager.SurroundSpeed,
+            };
+
+            // 处理玩家的武器射击（只有在没有待处理的武器请求时才射击）
+            // if (weaponRequestQuery.IsEmpty)
+            // {
+            //     foreach (var (player, weaponManager, transform, weaponSlots, entity) in
+            //              SystemAPI.Query<RefRO<Player>, RefRW<WeaponManager>, RefRO<LocalTransform>, DynamicBuffer<WeaponSlot>>()
+            //                  .WithEntityAccess())
+            //     {
+            //         if (ShouldShoot(ref state, entity))
+            //         {
+            //             FireWeapons(ref state, weaponManager, transform.ValueRO, weaponSlots, entity, configManaged);
+            //         }
+            //     }
+            // }
         }
 
         /// <summary>
@@ -242,12 +261,92 @@ namespace Rogue
         }
 
         /// <summary>
-        /// 判断是否应该射击
+        /// 更新武器位置
+        /// </summary>
+        private void UpdateWeaponPositions(ref SystemState state, ConfigManaged configManaged, EntityCommandBuffer ecb)
+        {
+            foreach (var (weapon, transform) in SystemAPI.Query<RefRO<Weapon>, RefRW<LocalTransform>>())
+            {
+            }
+        }
+
+        /// <summary>
+        /// 判断是否应该射击 (Job 版本，支持多武器多敌人)
         /// </summary>
         private bool ShouldShoot(ref SystemState state, Entity playerEntity)
         {
-            // 自动攻击逻辑
-            return true;
+            // 如果缺少 Transform 直接返回
+            if (!state.EntityManager.HasComponent<LocalTransform>(playerEntity)) return false;
+            var playerTransform = state.EntityManager.GetComponentData<LocalTransform>(playerEntity);
+
+            // 1. 计算玩家检测半径（取激活武器最大 Range）
+            float detectionRange = 5f;
+            if (state.EntityManager.HasBuffer<WeaponSlot>(playerEntity))
+            {
+                var weaponSlots = state.EntityManager.GetBuffer<WeaponSlot>(playerEntity);
+                for (int i = 0; i < weaponSlots.Length; i++)
+                {
+                    var slot = weaponSlots[i];
+                    if (!slot.IsActive || slot.WeaponEntity == Entity.Null) continue;
+                    if (!state.EntityManager.HasComponent<Weapon>(slot.WeaponEntity)) continue;
+                    var weapon = state.EntityManager.GetComponentData<Weapon>(slot.WeaponEntity);
+                    detectionRange = math.max(detectionRange, weapon.Range);
+                }
+            }
+
+            // 2. 收集所有敌人位置到 NativeList
+            var enemyPositions = new NativeList<float3>(Allocator.TempJob);
+            foreach (var enemyTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Enemy>())
+            {
+                enemyPositions.Add(enemyTransform.ValueRO.Position);
+            }
+
+            if (enemyPositions.Length == 0)
+            {
+                enemyPositions.Dispose();
+                return false;
+            }
+
+            // 3. 计算到所有敌人的距离(平方)，使用 Job 并行
+            var distances = new NativeArray<float>(enemyPositions.Length, Allocator.TempJob);
+            var distanceJob = new CalcDistanceJob
+            {
+                playerPos = playerTransform.Position,
+                enemyPositions = enemyPositions.AsArray(),
+                outDistances = distances
+            };
+            var handle = distanceJob.Schedule(enemyPositions.Length, 64);
+            handle.Complete();
+
+            // 4. 在主线程查找最近敌人(避免在 Job 中使用原子操作)
+            int nearestIdx = -1;
+            float nearestDistSq = detectionRange * detectionRange;
+            for (int i = 0; i < distances.Length; i++)
+            {
+                float d = distances[i];
+                if (d < nearestDistSq)
+                {
+                    nearestDistSq = d;
+                    nearestIdx = i;
+                }
+            }
+
+            bool hasEnemy = nearestIdx != -1;
+            if (hasEnemy)
+            {
+                float3 enemyPos = enemyPositions[nearestIdx];
+                float3 dir = math.normalize(enemyPos - playerTransform.Position);
+                if (!math.any(math.isnan(dir)))
+                {
+                    float angle = math.atan2(dir.y, dir.x);
+                    playerTransform.Rotation = quaternion.RotateZ(angle);
+                    state.EntityManager.SetComponentData(playerEntity, playerTransform);
+                }
+            }
+
+            enemyPositions.Dispose();
+            distances.Dispose();
+            return hasEnemy;
         }
 
         /// <summary>
@@ -281,24 +380,24 @@ namespace Rogue
         /// <summary>
         /// 顺序射击：一次只射一个武器
         /// </summary>
-        private void FireSequential(ref SystemState state, ref WeaponManager manager,
-                                   LocalTransform playerTransform, DynamicBuffer<WeaponSlot> weaponSlots,
-                                   Entity playerEntity, ConfigManaged config)
-        {
-            var activeWeapons = GetActiveWeapons(weaponSlots);
-            if (activeWeapons.Length == 0) return;
+        // private void FireSequential(ref SystemState state, ref WeaponManager manager,
+        //                            LocalTransform playerTransform, DynamicBuffer<WeaponSlot> weaponSlots,
+        //                            Entity playerEntity, ConfigManaged config)
+        // {
+        //     var activeWeapons = GetActiveWeapons(weaponSlots);
+        //     if (activeWeapons.Length == 0) return;
 
-            // 找到当前应该射击的武器
-            var currentWeapon = activeWeapons[manager.CurrentWeaponIndex % activeWeapons.Length];
+        //     // 找到当前应该射击的武器
+        //     var currentWeapon = activeWeapons[manager.CurrentWeaponIndex % activeWeapons.Length];
 
-            if (CanWeaponFire(ref state, currentWeapon))
-            {
-                FireSingleWeapon(ref state, currentWeapon, playerTransform, playerEntity, config);
-                manager.CurrentWeaponIndex = (manager.CurrentWeaponIndex + 1) % activeWeapons.Length;
-            }
+        //     if (CanWeaponFire(ref state, currentWeapon))
+        //     {
+        //         FireSingleWeapon(ref state, currentWeapon, playerTransform, playerEntity, config);
+        //         manager.CurrentWeaponIndex = (manager.CurrentWeaponIndex + 1) % activeWeapons.Length;
+        //     }
 
-            activeWeapons.Dispose();
-        }
+        //     activeWeapons.Dispose();
+        // }
 
         /// <summary>
         /// 同时射击：所有武器一起射
@@ -323,73 +422,73 @@ namespace Rogue
         /// <summary>
         /// 交替射击：轮流射击准备好的武器
         /// </summary>
-        private void FireAlternating(ref SystemState state, ref WeaponManager manager,
-                                    LocalTransform playerTransform, DynamicBuffer<WeaponSlot> weaponSlots,
-                                    Entity playerEntity, ConfigManaged config)
-        {
-            var activeWeapons = GetActiveWeapons(weaponSlots);
-            if (activeWeapons.Length == 0) return;
+        // private void FireAlternating(ref SystemState state, ref WeaponManager manager,
+        //                             LocalTransform playerTransform, DynamicBuffer<WeaponSlot> weaponSlots,
+        //                             Entity playerEntity, ConfigManaged config)
+        // {
+        //     var activeWeapons = GetActiveWeapons(weaponSlots);
+        //     if (activeWeapons.Length == 0) return;
 
-            // 从当前索引开始查找准备好的武器
-            for (int i = 0; i < activeWeapons.Length; i++)
-            {
-                int index = (manager.CurrentWeaponIndex + i) % activeWeapons.Length;
-                var weaponEntity = activeWeapons[index];
+        //     // 从当前索引开始查找准备好的武器
+        //     for (int i = 0; i < activeWeapons.Length; i++)
+        //     {
+        //         int index = (manager.CurrentWeaponIndex + i) % activeWeapons.Length;
+        //         var weaponEntity = activeWeapons[index];
 
-                if (CanWeaponFire(ref state, weaponEntity))
-                {
-                    FireSingleWeapon(ref state, weaponEntity, playerTransform, playerEntity, config);
-                    manager.CurrentWeaponIndex = (index + 1) % activeWeapons.Length;
-                    break;
-                }
-            }
+        //         if (CanWeaponFire(ref state, weaponEntity))
+        //         {
+        //             FireSingleWeapon(ref state, weaponEntity, playerTransform, playerEntity, config);
+        //             manager.CurrentWeaponIndex = (index + 1) % activeWeapons.Length;
+        //             break;
+        //         }
+        //     }
 
-            activeWeapons.Dispose();
-        }
+        //     activeWeapons.Dispose();
+        // }
 
         /// <summary>
         /// 按优先级射击：优先级高的武器先射
         /// </summary>
-        private void FireByPriority(ref SystemState state, LocalTransform playerTransform,
-                                   DynamicBuffer<WeaponSlot> weaponSlots, Entity playerEntity, ConfigManaged config)
-        {
-            // 按优先级排序武器槽位
-            var sortedSlots = new NativeList<WeaponSlot>(weaponSlots.Length, Allocator.Temp);
-            for (int i = 0; i < weaponSlots.Length; i++)
-            {
-                if (weaponSlots[i].IsActive && weaponSlots[i].WeaponEntity != Entity.Null)
-                {
-                    sortedSlots.Add(weaponSlots[i]);
-                }
-            }
+        // private void FireByPriority(ref SystemState state, LocalTransform playerTransform,
+        //                            DynamicBuffer<WeaponSlot> weaponSlots, Entity playerEntity, ConfigManaged config)
+        // {
+        //     // 按优先级排序武器槽位
+        //     var sortedSlots = new NativeList<WeaponSlot>(weaponSlots.Length, Allocator.Temp);
+        //     for (int i = 0; i < weaponSlots.Length; i++)
+        //     {
+        //         if (weaponSlots[i].IsActive && weaponSlots[i].WeaponEntity != Entity.Null)
+        //         {
+        //             sortedSlots.Add(weaponSlots[i]);
+        //         }
+        //     }
 
-            // 按优先级降序排序 (简单选择排序)
-            for (int i = 0; i < sortedSlots.Length - 1; i++)
-            {
-                for (int j = i + 1; j < sortedSlots.Length; j++)
-                {
-                    if (sortedSlots[i].Priority < sortedSlots[j].Priority)
-                    {
-                        var temp = sortedSlots[i];
-                        sortedSlots[i] = sortedSlots[j];
-                        sortedSlots[j] = temp;
-                    }
-                }
-            }
+        //     // 按优先级降序排序 (简单选择排序)
+        //     for (int i = 0; i < sortedSlots.Length - 1; i++)
+        //     {
+        //         for (int j = i + 1; j < sortedSlots.Length; j++)
+        //         {
+        //             if (sortedSlots[i].Priority < sortedSlots[j].Priority)
+        //             {
+        //                 var temp = sortedSlots[i];
+        //                 sortedSlots[i] = sortedSlots[j];
+        //                 sortedSlots[j] = temp;
+        //             }
+        //         }
+        //     }
 
-            // 发射准备好的武器
-            for (int i = 0; i < sortedSlots.Length; i++)
-            {
-                var weaponEntity = sortedSlots[i].WeaponEntity;
-                if (CanWeaponFire(ref state, weaponEntity))
-                {
-                    FireSingleWeapon(ref state, weaponEntity, playerTransform, playerEntity, config);
-                    break; // 只射击一个武器
-                }
-            }
+        //     // 发射准备好的武器
+        //     for (int i = 0; i < sortedSlots.Length; i++)
+        //     {
+        //         var weaponEntity = sortedSlots[i].WeaponEntity;
+        //         if (CanWeaponFire(ref state, weaponEntity))
+        //         {
+        //             FireSingleWeapon(ref state, weaponEntity, playerTransform, playerEntity, config);
+        //             break; // 只射击一个武器
+        //         }
+        //     }
 
-            sortedSlots.Dispose();
-        }
+        //     sortedSlots.Dispose();
+        // }
 
         /// <summary>
         /// 获取所有激活的武器实体
@@ -606,6 +705,35 @@ namespace Rogue
 
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
+        }
+    }
+
+    [BurstCompile]
+    public struct CalcDistanceJob : IJobParallelFor
+    {
+        public float3 playerPos;
+        [ReadOnly] public NativeArray<float3> enemyPositions;
+        [WriteOnly] public NativeArray<float> outDistances;
+        public void Execute(int index)
+        {
+            outDistances[index] = math.distancesq(playerPos, enemyPositions[index]);
+        }
+    }
+
+    [BurstCompile]
+    public struct CalcWeaponPositionJob : IJobParallelFor
+    {
+        public float3 playerPos;
+        [ReadOnly] public int weaponCount;
+        [ReadOnly] public float radius;
+        [ReadOnly] public float speed;
+        [ReadOnly] public float deltaTime;
+        [WriteOnly] public NativeArray<float3> outPositions;
+        public void Execute(int index)
+        {
+            var angle = 360 / weaponCount * index;
+            var newAngle = angle + speed * deltaTime;
+            outPositions[index] = playerPos + new float3(math.cos(newAngle), math.sin(newAngle), 0) * radius;
         }
     }
 }

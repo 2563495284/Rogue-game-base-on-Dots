@@ -43,15 +43,11 @@ namespace Rogue
                 ecb.Playback(state.EntityManager);
             }
 
-            // 持续同步Transform和动画状态
+            // 持续同步动画状态
             if (state.EntityManager.HasComponent<PlayerAnimation>(player) && state.EntityManager.HasComponent<Controller>(player))
             {
                 var playerAnimation = state.EntityManager.GetComponentObject<PlayerAnimation>(player);
                 var controller = state.EntityManager.GetComponentObject<Controller>(player);
-                var transform = SystemAPI.GetComponent<LocalTransform>(player);
-
-                // 完整的Transform同步
-                TransformUtils.SyncTransform(playerAnimation.AnimatedGO.transform, transform);
 
                 // 动画状态同步
                 var animator = playerAnimation.AnimatedGO.GetComponent<Animator>();

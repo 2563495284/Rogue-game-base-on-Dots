@@ -22,43 +22,56 @@ namespace Rogue
         {
             var player = SystemAPI.GetSingletonEntity<Player>();
 
-            var deltaTime = SystemAPI.Time.DeltaTime;
+            // 直接使用 ref 访问以避免结构体拷贝
+            var transformRW = SystemAPI.GetComponentRW<LocalTransform>(player);
+            var movementRW = SystemAPI.GetComponentRW<PlayerMovement>(player);
 
-            // 处理所有玩家的移动
-            if (state.EntityManager.HasComponent<PlayerMovement>(player) && state.EntityManager.HasComponent<Controller>(player))
+            var controller = state.EntityManager.GetComponentObject<Controller>(player);
+            var playerController = controller.ControllerGO.GetComponent<PlayerController>();
+
+            // 没有输入则清空方向并提前返回
+            if (!playerController.IsMoving)
             {
+                movementRW.ValueRW.Direction = float2.zero;
+                return;
+            }
+
+            // 规范化输入向量（安全版本避免除 0）
+            var inputDir = math.normalizesafe(playerController.Movement);
+            movementRW.ValueRW.Direction = inputDir;
+
+            // 移动
+            var deltaTime = SystemAPI.Time.DeltaTime;
+            transformRW.ValueRW.Position += new float3(inputDir.x, inputDir.y, 0) * movementRW.ValueRO.Speed * deltaTime;
+            // TransformUtils.SyncTransform(controller.ControllerGO.transform, transformRW.ValueRO);
+            controller.ControllerGO.transform.position = transformRW.ValueRO.Position;
+            
+
+            // 面向移动方向
+            // if (math.lengthsq(inputDir) > 1e-4f)
+            // {
+            //     var lookDir = math.normalize(new float3(inputDir.x, 0, 0));
+            //     transformRW.ValueRW.Rotation = quaternion.LookRotation(lookDir, math.back());
+            // }
+            // 持续同步Transform和动画状态
+            if (state.EntityManager.HasComponent<PlayerAnimation>(player))
+            {
+                var playerAnimation = state.EntityManager.GetComponentObject<PlayerAnimation>(player);
                 var transform = SystemAPI.GetComponent<LocalTransform>(player);
-                var movement = state.EntityManager.GetComponentData<PlayerMovement>(player);
-                var controller = state.EntityManager.GetComponentObject<Controller>(player);
-                var playerController = controller.ControllerGO.GetComponent<PlayerController>();
-                // 如果有输入
-                if (playerController.IsMoving)
+
+                // 完整的Transform同步
+                // TransformUtils.SyncTransform(playerAnimation.AnimatedGO.transform, transform);
+                playerAnimation.AnimatedGO.transform.position = transformRW.ValueRO.Position;
+
+                // 动画状态同步
+                var animator = playerAnimation.AnimatedGO.GetComponent<Animator>();
+                if (animator != null)
                 {
-                    // 规范化输入向量
-                    var normalizedInput = math.normalize(playerController.Movement);
-
-                    // 更新移动方向
-                    movement.Direction = normalizedInput;
-
-                    // 计算新位置
-                    var newPosition = transform.Position +
-                        new float3(normalizedInput.x, normalizedInput.y, 0) * movement.Speed * deltaTime;
-
-                    // 更新位置
-                    transform.Position = newPosition;
-
-                    // 更新朝向（让玩家面向移动方向）
-                    if (math.lengthsq(normalizedInput) > 0.01f)
-                    {
-                        var lookDirection = math.normalize(new float3(normalizedInput.x, normalizedInput.y, 0));
-                        transform.Rotation = quaternion.LookRotation(lookDirection, math.forward());
-                    }
-                    state.EntityManager.SetComponentData(player, transform);
-                }
-                else
-                {
-                    // 停止移动时清零方向
-                    movement.Direction = float2.zero;
+                    // 检查玩家是否有移动输入
+                    bool isMoving = controller.ControllerGO.GetComponent<PlayerController>().IsMoving;
+                    // 设置动画参数
+                    var isMovingId = Animator.StringToHash("bRunning");
+                    animator.SetBool(isMovingId, isMoving);
                 }
             }
         }
