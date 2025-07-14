@@ -42,10 +42,10 @@ namespace Rogue
 
             // 移动
             var deltaTime = SystemAPI.Time.DeltaTime;
-            transformRW.ValueRW.Position += new float3(inputDir.x, inputDir.y, 0) * movementRW.ValueRO.Speed * deltaTime;
+            transformRW.ValueRW.Position.xy += new float2(inputDir.x, inputDir.y) * movementRW.ValueRO.Speed * deltaTime;
             // TransformUtils.SyncTransform(controller.ControllerGO.transform, transformRW.ValueRO);
             controller.ControllerGO.transform.position = transformRW.ValueRO.Position;
-            
+
 
             // 面向移动方向
             // if (math.lengthsq(inputDir) > 1e-4f)

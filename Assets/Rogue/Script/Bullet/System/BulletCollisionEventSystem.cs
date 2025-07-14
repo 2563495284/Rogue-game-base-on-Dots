@@ -11,7 +11,6 @@ namespace Rogue
     /// 子弹碰撞事件处理系统 - 处理从MonoBehaviour发来的碰撞事件
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(BulletMovementSystem))]
     public partial struct BulletCollisionEventSystem : ISystem
     {
         public void OnCreate(ref SystemState state)

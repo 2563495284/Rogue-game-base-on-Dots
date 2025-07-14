@@ -9,7 +9,6 @@ namespace Rogue
     {
         public float CurrentCooldown;    // 当前冷却时间
         public float MaxCooldown;        // 最大冷却时间
-        public bool CanShoot;            // 是否可以射击
 
         public readonly bool IsReady => CurrentCooldown <= 0f;
 
@@ -17,7 +16,6 @@ namespace Rogue
         {
             CurrentCooldown = cooldownTime;
             MaxCooldown = cooldownTime;
-            CanShoot = false;
         }
 
         public void UpdateCooldown(float deltaTime)
@@ -28,10 +26,14 @@ namespace Rogue
                 if (CurrentCooldown <= 0f)
                 {
                     CurrentCooldown = 0f;
-                    CanShoot = true;
                 }
             }
         }
+    }
+    //武器可以设计的标记
+    public struct WeaponShoot : IComponentData
+    {
+
     }
     // 武器槽位元素（用于DynamicBuffer）
     public struct WeaponSlot : IBufferElementData
@@ -40,6 +42,8 @@ namespace Rogue
         public int SlotIndex;           // 槽位索引
         public bool IsActive;           // 是否激活
         public float Priority;          // 优先级（用于自动射击顺序）
+
+        public bool toDestroy; // 是否需要销毁
     }
 
     // 武器管理器组件
@@ -90,53 +94,33 @@ namespace Rogue
         public quaternion LocalRotation; // 相对于玩家的旋转
         public int MountIndex;          // 挂载点索引
     }
-
-    // 武器操作请求组件
-    public struct WeaponOperationRequest : IComponentData
+    // 武器创建请求
+    public struct WeaponCreateRequest : IComponentData
     {
-        public WeaponOperationType OperationType;  // 操作类型（添加/移除/修改优先级/修改射击模式）
-        public int SlotIndex;                      // 目标槽位索引
-        public float Priority;                     // 武器优先级（用于自动射击顺序）
         public int WeaponPrefabIndex;              // 武器预制体在配置中的索引（-1表示无效）
-        public bool IsProcessed;                   // 是否已处理完成
-
-        /// <summary>
-        /// 创建添加武器请求
-        /// </summary>
-        public static WeaponOperationRequest CreateAddRequest(int weaponPrefabIndex, int slotIndex, float priority = 1.0f)
+        public WeaponCreateRequest(int weaponPrefabIndex)
         {
-            return new WeaponOperationRequest
-            {
-                OperationType = WeaponOperationType.Add,
-                SlotIndex = slotIndex,
-                Priority = priority,
-                WeaponPrefabIndex = weaponPrefabIndex,
-                IsProcessed = false
-            };
-        }
-
-        /// <summary>
-        /// 创建移除武器请求
-        /// </summary>
-        public static WeaponOperationRequest CreateRemoveRequest(int slotIndex)
-        {
-            return new WeaponOperationRequest
-            {
-                OperationType = WeaponOperationType.Remove,
-                SlotIndex = slotIndex,
-                Priority = 0f,
-                WeaponPrefabIndex = -1,
-                IsProcessed = false
-            };
+            WeaponPrefabIndex = weaponPrefabIndex;
         }
     }
-
-    // 武器操作类型
-    public enum WeaponOperationType
+    public struct WeaponRemoveRequest : IComponentData
     {
-        Add,
-        Remove,
-        ChangePriority,
-        ChangeFireMode
+        public int SlotIndex;                      // 目标槽位索引
+        public WeaponRemoveRequest(int slotIndex)
+        {
+            SlotIndex = slotIndex;
+        }
+    }
+    public class WeaponAnimation : IComponentData
+    {
+        public GameObject AnimatedGO;
+        public WeaponAnimation(GameObject animatedGO)
+        {
+            AnimatedGO = animatedGO;
+        }
+        public WeaponAnimation()
+        {
+            AnimatedGO = null;
+        }
     }
 }

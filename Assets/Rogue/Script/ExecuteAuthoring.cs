@@ -17,6 +17,7 @@ namespace Rogue
 
         [Header("Weapon")]
         public bool WeaponSystem;
+        public bool WeaponAnimationSystem;
 
         [Header("Bullet")]
         public bool BulletSpawnSystem;
@@ -69,6 +70,10 @@ namespace Rogue
                 if (authoring.WeaponSystem)
                 {
                     AddComponent<ExecuteWeapon>(entity);
+                }
+                if (authoring.WeaponAnimationSystem)
+                {
+                    AddComponent<ExecuteWeaponAnimation>(entity);
                 }
                 //bullet
                 if (authoring.BulletMovementSystem)
@@ -128,6 +133,9 @@ namespace Rogue
 
     #region Weapon
     public struct ExecuteWeapon : IComponentData
+    {
+    }
+    public struct ExecuteWeaponAnimation : IComponentData
     {
     }
     #endregion

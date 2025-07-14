@@ -15,7 +15,6 @@ namespace Rogue
         public float surroundSpeed = 5f;
 
         public int maxWeaponSlots = 8;            // 最大武器数量限制
-        public WeaponFireMode defaultFireMode = WeaponFireMode.Sequential;
         public WeaponAuthoring[] initialWeapons;  // 初始武器配置
 
         private class Baker : Baker<PlayerAuthoring>
@@ -36,8 +35,7 @@ namespace Rogue
                     SurroundRadius = authoring.surroundRadius,
                     SurroundSpeed = authoring.surroundSpeed,
                     MaxWeaponSlots = authoring.maxWeaponSlots,
-                    FireMode = authoring.defaultFireMode,
-                    CurrentWeaponIndex = 0
+                    CurrentWeaponIndex = 0,
                 });
 
                 // 添加武器槽位缓冲区（初始为空，动态添加）

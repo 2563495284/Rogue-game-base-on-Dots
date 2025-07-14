@@ -21,31 +21,6 @@ namespace Rogue
         {
             var configEntity = SystemAPI.GetSingletonEntity<Config>();
             var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
-
-            // 创建第一个ECB用于添加组件
-            var addComponentECB = new EntityCommandBuffer(Allocator.Temp);
-
-            foreach (var (bullet, transform, entity) in
-                     SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>>().WithNone<BulletAnimation>().WithEntityAccess())
-            {
-                var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bullet.ValueRO.BulletAnimId]);
-                var bulletAnimation = new BulletAnimation(go);
-
-                // 添加碰撞处理器组件
-                var collisionHandler = go.GetComponent<BulletCollisionHandler>();
-                if (collisionHandler == null)
-                {
-                    collisionHandler = go.AddComponent<BulletCollisionHandler>();
-                }
-
-                // 初始化碰撞处理器
-                collisionHandler.Initialize(entity);
-
-                addComponentECB.AddComponent(entity, bulletAnimation);
-            }
-            addComponentECB.Playback(state.EntityManager);
-            addComponentECB.Dispose();
-
             // 创建第二个ECB用于销毁实体
             var destroyECB = new EntityCommandBuffer(Allocator.Temp);
 
@@ -57,7 +32,7 @@ namespace Rogue
                 if (animator == null) continue;
 
                 // 完整的Transform同步
-                SyncTransform(animator.transform, transform.ValueRO);
+                TransformUtils.SyncTransform(animator.transform, transform.ValueRO);
 
                 // 检查动画是否播放完成
                 if (IsAnimationComplete(animator))
@@ -116,16 +91,6 @@ namespace Rogue
             ecb.DestroyEntity(bulletEntity);
 
             Debug.Log($"子弹销毁: Entity={bulletEntity.Index}");
-        }
-
-        /// <summary>
-        /// 将ECS的LocalTransform同步到GameObject的Transform
-        /// </summary>
-        private static void SyncTransform(Transform goTransform, LocalTransform ecsTransform)
-        {
-            goTransform.position = ecsTransform.Position;
-            goTransform.rotation = ecsTransform.Rotation;
-            goTransform.localScale = Vector3.one * ecsTransform.Scale;
         }
     }
 }

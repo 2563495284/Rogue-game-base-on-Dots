@@ -27,7 +27,6 @@ namespace Rogue
         [Header("Bullets")]
         public List<GameObject> BulletPrefabGOs;
         public List<GameObject> BulletAnimationPrefabGOs;
-
         class Baker : Baker<ConfigAuthoring>
         {
             public override void Bake(ConfigAuthoring authoring)

@@ -30,71 +30,69 @@ namespace Rogue
             var configEntity = SystemAPI.GetSingletonEntity<Config>();
             var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
 
-            // 统计请求数量
-            var requestCount = SystemAPI.QueryBuilder().WithAll<BulletSpawnRequest>().Build().CalculateEntityCount();
-            if (requestCount > 0)
-            {
-                Debug.Log($"BulletSpawnSystem: 发现 {requestCount} 个子弹发射请求");
-            }
-
             // 处理子弹发射请求
             foreach (var (spawnRequest, entity) in SystemAPI.Query<BulletSpawnRequest>().WithEntityAccess())
             {
-                Debug.Log($"BulletSpawnSystem: 处理子弹请求 ID={spawnRequest.BulletId}, 位置={spawnRequest.SpawnPosition}");
-                if (!spawnRequest.IsProcessed)
+                var bulletData = spawnRequest.Bullet;
+
+                // 检查子弹ID是否有效
+                if (bulletData.BulletId < 0 || bulletData.BulletId >= configManaged.BulletPrefabEntities.Count)
                 {
-                    // 检查子弹ID是否有效
-                    if (spawnRequest.BulletId < 0 || spawnRequest.BulletId >= configManaged.BulletPrefabEntities.Count)
+                    ecb.DestroyEntity(entity);
+                    continue;
+                }
+
+                // 获取子弹预制体Entity
+                var bulletPrefabEntity = configManaged.BulletPrefabEntities[bulletData.BulletId];
+                var bulletEntity = ecb.Instantiate(bulletPrefabEntity);
+                //初始化子弹组件
+                {
+                    ecb.SetComponent(bulletEntity, new Bullet
                     {
-                        Debug.LogError($"无效的子弹ID: {spawnRequest.BulletId}");
-                        ecb.DestroyEntity(entity);
-                        continue;
-                    }
-
-                    // 获取子弹预制体Entity
-                    var bulletPrefabEntity = configManaged.BulletPrefabEntities[spawnRequest.BulletId];
-                    // 实例化子弹Entity（这会复制BulletAuthoring创建的所有组件）
-                    var bulletEntity = ecb.Instantiate(bulletPrefabEntity);
-
-                    // 更新子弹位置（Baker已经设置了Transform，我们只需要更新位置）
+                        BulletId = bulletData.BulletId,
+                        BulletType = bulletData.BulletType,
+                        SpiltRadius = bulletData.SpiltRadius,
+                    });
+                }
+                // 更新子弹位置（Baker已经设置了Transform，我们只需要更新位置）
+                {
                     ecb.SetComponent(bulletEntity, new LocalTransform
                     {
-                        Position = spawnRequest.SpawnPosition,
+                        Position = new float3(spawnRequest.SpawnPosition.xy, 0),
                         Rotation = quaternion.identity,
                         Scale = 1f
                     });
-
-                    // 创建新的组件数据，而不是从EntityManager获取（因为实体还没有被创建）
-                    // 更新移动组件 - 使用配置中的默认速度
-                    var movement = new BulletMovement
-                    {
-                        Direction = spawnRequest.Direction,
-                        StartPosition = spawnRequest.SpawnPosition,
-                    };
-                    ecb.SetComponent(bulletEntity, movement);
                 }
+                // 添加动画组建
+                {
+                    var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bulletData.BulletId]);
+                    var bulletAnimation = new BulletAnimation(go);
+                    // 添加碰撞处理器组件
+                    var collisionHandler = go.GetComponent<BulletCollisionHandler>();
+                    if (collisionHandler == null)
+                    {
+                        collisionHandler = go.AddComponent<BulletCollisionHandler>();
+                    }
+                    // 初始化碰撞处理器
+                    collisionHandler.Initialize(entity);
 
+                    ecb.AddComponent(entity, bulletAnimation);
+                }
+                // 设置子弹伤害组件
+                {
+                    ecb.SetComponent(bulletEntity, new BulletDamage
+                    {
+                        Damage = spawnRequest.Damage,
+                        CriticalChance = spawnRequest.CriticalChance,
+                        CriticalDamage = spawnRequest.CriticalDamage,
+                    });
+                }
                 // 销毁请求实体（无论是否处理成功）
                 ecb.DestroyEntity(entity);
             }
 
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
-        }
-
-
-        /// <summary>
-        /// 创建默认子弹配置
-        /// </summary>
-        private BulletAssetData CreateDefaultBulletConfig()
-        {
-            var defaultConfig = ScriptableObject.CreateInstance<BulletAssetData>();
-            defaultConfig.BulletSpeed = 1f; // 默认速度（与Bullet0.asset保持一致）
-            defaultConfig.damage = 0f; // 默认伤害（与Bullet0.asset保持一致）
-            defaultConfig.criticalChance = 0f; // 默认暴击率（与Bullet0.asset保持一致）
-            defaultConfig.criticalDamage = 0f; // 默认暴击伤害（与Bullet0.asset保持一致）
-            defaultConfig.BulletLifeTime = 10f; // 默认生命周期（与Bullet0.asset保持一致）
-            return defaultConfig;
         }
     }
 }

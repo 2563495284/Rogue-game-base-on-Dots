@@ -45,3 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   WeaponAssetData: {fileID: 11400000, guid: 9e5945b115595254c9650b5a34d4de68, type: 2}
+  BulletAssetData: {fileID: 11400000, guid: feaeb802f4ed3d34b8fb585fac53d080, type: 2}
