@@ -155,14 +155,19 @@ namespace Rogue
             if (world == null) return;
 
             var entityManager = world.EntityManager;
+            // 若实体仍为延迟实体（Index 为负），等待其回放后再处理
+            if (bulletEntity.Index < 0)
+            {
+                return;
+            }
+            // 实体已创建且有效时再继续
             if (!entityManager.Exists(bulletEntity)) return;
 
             // 创建碰撞事件实体
             var collisionEntity = entityManager.CreateEntity();
 
             // 添加碰撞事件组件
-            entityManager.AddComponent<BulletCollisionEvent>(collisionEntity);
-            entityManager.SetComponentData(collisionEntity, new BulletCollisionEvent
+            entityManager.AddComponentData(collisionEntity, new BulletCollisionEvent
             {
                 BulletEntity = bulletEntity,
                 CollisionType = collisionType,
@@ -235,5 +240,16 @@ namespace Rogue
         public float3 CollisionPosition;
         public GameObject TargetGameObject; // 托管引用
         public bool IsProcessed;
+        public BulletCollisionEvent(Entity bulletEntity, BulletCollisionType collisionType, float3 collisionPosition, GameObject targetGameObject, bool isProcessed)
+        {
+            BulletEntity = bulletEntity;
+            CollisionType = collisionType;
+            CollisionPosition = collisionPosition;
+            TargetGameObject = targetGameObject;
+            IsProcessed = isProcessed;
+        }
+        public BulletCollisionEvent()
+        {
+        }
     }
 }

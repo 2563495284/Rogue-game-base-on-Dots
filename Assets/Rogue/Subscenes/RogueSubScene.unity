@@ -143,6 +143,10 @@ PrefabInstance:
       propertyPath: EnemyAnimationSystem
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 850455571819818384, guid: d22978d8363f64f8f8ae5d55648422e6, type: 3}
+      propertyPath: WeaponAnimationSystem
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3349105744269617154, guid: d22978d8363f64f8f8ae5d55648422e6, type: 3}
       propertyPath: m_Name
       value: Config

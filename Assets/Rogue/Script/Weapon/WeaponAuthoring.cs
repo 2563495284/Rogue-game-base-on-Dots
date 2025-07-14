@@ -7,7 +7,6 @@ namespace Rogue
     public class WeaponAuthoring : MonoBehaviour
     {
         public WeaponAssetData WeaponAssetData;
-        public BulletAssetData BulletAssetData;
 
         private class Baker : Baker<WeaponAuthoring>
         {
@@ -26,12 +25,7 @@ namespace Rogue
                     Attribute = authoring.WeaponAssetData.Attribute,
                     CriticalChance = authoring.WeaponAssetData.CriticalChance,
                     CriticalDamage = authoring.WeaponAssetData.CriticalDamage,
-                    Bullet = new Bullet
-                    {
-                        BulletId = authoring.BulletAssetData.Id,
-                        BulletType = authoring.BulletAssetData.BulletType,
-                        SpiltRadius = authoring.BulletAssetData.SpiltRadius,
-                    },
+                    BulletId = authoring.WeaponAssetData.BulletId,
                     BulletNum = authoring.WeaponAssetData.BulletNum,
                     TrajectoryNum = authoring.WeaponAssetData.TrajectoryNum,
                 });
@@ -67,7 +61,7 @@ namespace Rogue
         public float CriticalDamage;//暴击伤害
 
         [Header("子弹")]
-        public Bullet Bullet;//子弹
+        public int BulletId;//子弹
 
         public int BulletNum;//子弹数量,每次攻击生成子弹数量
 

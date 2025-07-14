@@ -59,7 +59,7 @@ namespace Rogue
 
     public struct BulletSpawnRequest : IComponentData
     {
-        public Bullet Bullet;
+        public int BulletId;
         public float2 SpawnPosition;
         public float2 Direction;
         public float Damage;

@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 100
+  surroundRadius: 100
+  surroundSpeed: 1
   maxWeaponSlots: 4
-  defaultFireMode: 0
   initialWeapons: []

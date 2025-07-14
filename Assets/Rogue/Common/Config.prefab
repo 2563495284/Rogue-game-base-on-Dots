@@ -62,6 +62,8 @@ MonoBehaviour:
   - {fileID: 6163820735451155453, guid: de824f238d80e490b97605fbef228495, type: 3}
   BulletAnimationPrefabGOs:
   - {fileID: 6163820735451155453, guid: b7b8215e7b6a07443a18f164b133720b, type: 3}
+  BulletDatas:
+  - {fileID: 11400000, guid: feaeb802f4ed3d34b8fb585fac53d080, type: 2}
 --- !u!114 &850455571819818384
 MonoBehaviour:
   m_ObjectHideFlags: 0

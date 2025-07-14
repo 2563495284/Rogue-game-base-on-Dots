@@ -26,9 +26,11 @@ namespace Rogue
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
+            var elapsedTime = SystemAPI.Time.ElapsedTime;
             var configEntity = SystemAPI.GetSingletonEntity<Config>();
             var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
             var playerEntity = SystemAPI.GetSingletonEntity<Player>();
+            var weaponManager = SystemAPI.GetComponent<WeaponManager>(playerEntity);
 
             // 处理武器操作请求
             {
@@ -37,6 +39,11 @@ namespace Rogue
                 //处理创建武器请求
                 foreach (var (request, entity) in SystemAPI.Query<RefRO<WeaponCreateRequest>>().WithEntityAccess())
                 {
+                    if (weaponSlots.Length >= weaponManager.MaxWeaponSlots)
+                    {
+                        ecb.DestroyEntity(entity);
+                        continue;
+                    }
                     var requestData = request.ValueRO;
                     var weaponPrefabEntity = configManaged.WeaponPrefabEntities[requestData.WeaponPrefabIndex];
                     // 获取武器槽位缓冲区
@@ -52,6 +59,7 @@ namespace Rogue
                         IsActive = true,
                         toDestroy = false
                     });
+                    ecb.DestroyEntity(entity);
                 }
                 //处理移除武器的请求
                 foreach (var (request, entity) in SystemAPI.Query<RefRO<WeaponRemoveRequest>>().WithEntityAccess())
@@ -78,7 +86,6 @@ namespace Rogue
             {
                 var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
                 var weaponSlots = SystemAPI.GetBuffer<WeaponSlot>(playerEntity);
-                var weaponManager = SystemAPI.GetComponent<WeaponManager>(playerEntity);
                 var weaponPositions = new NativeList<float2>(Allocator.TempJob);
                 foreach (var (weapon, transform) in SystemAPI.Query<RefRO<Weapon>, RefRW<LocalTransform>>())
                 {
@@ -91,7 +98,8 @@ namespace Rogue
                     weaponCount = weaponSlots.Length,
                     radius = weaponManager.SurroundRadius,
                     speed = weaponManager.SurroundSpeed,
-                    outPositions = outPositions
+                    outPositions = outPositions,
+                    elapsedTime = elapsedTime
                 };
                 var updateWeaponPositionsJobHandle = updateWeaponPositionsJob.Schedule(weaponSlots.Length, 64);
                 updateWeaponPositionsJobHandle.Complete();
@@ -240,7 +248,7 @@ namespace Rogue
             // 创建子弹发射请求
             var spawnRequest = new BulletSpawnRequest
             {
-                Bullet = weapon.Bullet,
+                BulletId = weapon.BulletId,
                 SpawnPosition = position,
                 Direction = direction,
                 Damage = weapon.Damage,
@@ -260,12 +268,12 @@ namespace Rogue
         [ReadOnly] public int weaponCount;
         [ReadOnly] public float radius;
         [ReadOnly] public float speed;
-        [ReadOnly] public float deltaTime;
+        [ReadOnly] public double elapsedTime;
         [WriteOnly] public NativeArray<float2> outPositions;
         public void Execute(int index)
         {
-            var angle = 360 / weaponCount * index;
-            var newAngle = angle + speed * deltaTime;
+            var angle = 2 * math.PI / weaponCount * (index + 1);
+            var newAngle = angle + speed * (float)elapsedTime;
             outPositions[index] = playerPos + new float2(math.cos(newAngle), math.sin(newAngle)) * radius;
         }
     }

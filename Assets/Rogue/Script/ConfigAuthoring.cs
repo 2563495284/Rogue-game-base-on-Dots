@@ -27,6 +27,8 @@ namespace Rogue
         [Header("Bullets")]
         public List<GameObject> BulletPrefabGOs;
         public List<GameObject> BulletAnimationPrefabGOs;
+        // Bullet config ScriptableObjects 列表，用于在运行时访问子弹属性
+        public List<BulletAssetData> BulletDatas;
         class Baker : Baker<ConfigAuthoring>
         {
             public override void Bake(ConfigAuthoring authoring)
@@ -47,6 +49,8 @@ namespace Rogue
                 configManaged.PlayerControllerPrefabGO = authoring.PlayerControllerGO;
                 configManaged.WeaponAnimationPrefabGOs = authoring.WeaponAnimationPrefabGOs;
                 configManaged.BulletAnimationPrefabGOs = authoring.BulletAnimationPrefabGOs;
+                // 将子弹数据 ScriptableObjects 保存到托管组件，供系统使用
+                configManaged.BulletDatas = authoring.BulletDatas;
                 configManaged.WeaponPrefabEntities = authoring.WeaponPrefabGOs.Select(go => GetEntity(go, TransformUsageFlags.Dynamic)).ToList();
                 configManaged.BulletPrefabEntities = authoring.BulletPrefabGOs.Select(go => GetEntity(go, TransformUsageFlags.Dynamic)).ToList();
                 AddComponentObject(entity, configManaged);
@@ -76,5 +80,7 @@ namespace Rogue
         public List<GameObject> BulletAnimationPrefabGOs;
         public List<Entity> BulletPrefabEntities;
         public List<Entity> WeaponPrefabEntities;
+        // 子弹 ScriptableObject 数据列表
+        public List<BulletAssetData> BulletDatas;
     }
 }

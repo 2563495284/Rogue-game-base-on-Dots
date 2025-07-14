@@ -33,23 +33,23 @@ namespace Rogue
             // 处理子弹发射请求
             foreach (var (spawnRequest, entity) in SystemAPI.Query<BulletSpawnRequest>().WithEntityAccess())
             {
-                var bulletData = spawnRequest.Bullet;
+                var bulletData = configManaged.BulletDatas[spawnRequest.BulletId];
 
                 // 检查子弹ID是否有效
-                if (bulletData.BulletId < 0 || bulletData.BulletId >= configManaged.BulletPrefabEntities.Count)
+                if (bulletData.Id < 0 || bulletData.Id >= configManaged.BulletPrefabEntities.Count)
                 {
                     ecb.DestroyEntity(entity);
                     continue;
                 }
 
                 // 获取子弹预制体Entity
-                var bulletPrefabEntity = configManaged.BulletPrefabEntities[bulletData.BulletId];
+                var bulletPrefabEntity = configManaged.BulletPrefabEntities[bulletData.Id];
                 var bulletEntity = ecb.Instantiate(bulletPrefabEntity);
                 //初始化子弹组件
                 {
-                    ecb.SetComponent(bulletEntity, new Bullet
+                    ecb.AddComponent(bulletEntity, new Bullet
                     {
-                        BulletId = bulletData.BulletId,
+                        BulletId = bulletData.Id,
                         BulletType = bulletData.BulletType,
                         SpiltRadius = bulletData.SpiltRadius,
                     });
@@ -65,7 +65,7 @@ namespace Rogue
                 }
                 // 添加动画组建
                 {
-                    var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bulletData.BulletId]);
+                    var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bulletData.Id]);
                     var bulletAnimation = new BulletAnimation(go);
                     // 添加碰撞处理器组件
                     var collisionHandler = go.GetComponent<BulletCollisionHandler>();
@@ -74,13 +74,13 @@ namespace Rogue
                         collisionHandler = go.AddComponent<BulletCollisionHandler>();
                     }
                     // 初始化碰撞处理器
-                    collisionHandler.Initialize(entity);
+                    collisionHandler.Initialize(bulletEntity);
 
-                    ecb.AddComponent(entity, bulletAnimation);
+                    ecb.AddComponent(bulletEntity, bulletAnimation);
                 }
                 // 设置子弹伤害组件
                 {
-                    ecb.SetComponent(bulletEntity, new BulletDamage
+                    ecb.AddComponent(bulletEntity, new BulletDamage
                     {
                         Damage = spawnRequest.Damage,
                         CriticalChance = spawnRequest.CriticalChance,
