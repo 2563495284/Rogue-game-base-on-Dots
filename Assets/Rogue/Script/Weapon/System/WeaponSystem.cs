@@ -135,76 +135,20 @@ namespace Rogue
                 addShootEcb.Dispose();
                 //处理武器射击
                 var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
-                var weaponSlots = SystemAPI.GetBuffer<WeaponSlot>(playerEntity);
-                var WeaponEntitied = new NativeList<Entity>(Allocator.TempJob);
-                var weaponPositions = new NativeList<float2>(Allocator.TempJob);
-                var weaponShootTypes = new NativeList<int>(Allocator.TempJob);
-                var weaponRanges = new NativeList<float>(Allocator.TempJob);
-                foreach (var (weapon, transform, entity) in SystemAPI.Query<RefRO<Weapon>, RefRW<LocalTransform>>().WithAll<WeaponShoot>().WithEntityAccess())
-                {
-                    weaponPositions.Add(transform.ValueRO.Position.xy);
-                    weaponShootTypes.Add(0);
-                    WeaponEntitied.Add(entity);
-                    weaponRanges.Add(weapon.ValueRO.Range);
-                }
                 var enemyPositions = new NativeList<float2>(Allocator.TempJob);
                 foreach (var transform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Enemy>())
                 {
                     enemyPositions.Add(transform.ValueRO.Position.xy);
                 }
-                var outCanShoot = new NativeArray<bool>(weaponPositions.Length, Allocator.TempJob);
-                var outTargetPosition = new NativeArray<float2>(weaponPositions.Length, Allocator.TempJob);
+                var ecb = new EntityCommandBuffer(Allocator.TempJob);
                 var weaponShootJob = new WeaponShootJob
                 {
+                    ecb = ecb,
                     playerPos = playerTransform.Position.xy,
                     enemyPositions = enemyPositions.AsArray(),
-                    weaponPositions = weaponPositions.AsArray(),
-                    weaponShootTypes = weaponShootTypes.AsArray(),
-                    weaponRanges = weaponRanges.AsArray(),
-                    outCanShoot = outCanShoot,
-                    outTargetPosition = outTargetPosition,
                 };
-                var weaponShootJobHandle = weaponShootJob.Schedule(weaponPositions.Length, 64);
-                weaponShootJobHandle.Complete();
-
-                var ecb = new EntityCommandBuffer(Allocator.Temp);
-                for (int i = 0; i < WeaponEntitied.Length; i++)
-                {
-                    var weaponEntity = WeaponEntitied[i];
-                    var weaponTransform = SystemAPI.GetComponent<LocalTransform>(weaponEntity);
-                    if (outCanShoot[i])
-                    {
-                        var targetPosition = weaponShootJob.outTargetPosition[i];
-                        var weapon = state.EntityManager.GetComponentData<Weapon>(weaponEntity);
-
-                        // 发射武器
-                        // 获取玩家位置作为子弹生成位置（避免武器位置过远的问题）
-                        var bulletPosition = weaponTransform.Position.xy;
-                        var bulletDirection = weaponTransform.Position.xy - targetPosition;
-                        // 生成多发子弹
-                        for (int j = 0; j < weapon.BulletNum; j++)
-                        {
-                            // 创建子弹发射请求
-                            CreateBulletRequest(ecb, bulletPosition, bulletDirection, weapon);
-                        }
-
-                        // 启动冷却
-                        if (state.EntityManager.HasComponent<WeaponCooldown>(weaponEntity))
-                        {
-                            var cooldown = state.EntityManager.GetComponentData<WeaponCooldown>(weaponEntity);
-                            cooldown.StartCooldown(weapon.Cooldown);
-                            state.EntityManager.SetComponentData(weaponEntity, cooldown);
-                        }
-                        state.EntityManager.RemoveComponent<WeaponShoot>(weaponEntity);
-
-                    }
-                }
-                weaponPositions.Dispose();
-                weaponShootTypes.Dispose();
+                weaponShootJob.Schedule(state.Dependency).Complete();
                 enemyPositions.Dispose();
-                outCanShoot.Dispose();
-                outTargetPosition.Dispose();
-                weaponRanges.Dispose();
                 ecb.Playback(state.EntityManager);
                 ecb.Dispose();
             }
@@ -239,27 +183,6 @@ namespace Rogue
 
             return activeWeapons;
         }
-
-        /// <summary>
-        /// 创建子弹发射请求
-        /// </summary>
-        private void CreateBulletRequest(EntityCommandBuffer ecb, float2 position, float2 direction, Weapon weapon)
-        {
-            // 创建子弹发射请求
-            var spawnRequest = new BulletSpawnRequest
-            {
-                BulletId = weapon.BulletId,
-                SpawnPosition = position,
-                Direction = direction,
-                Damage = weapon.Damage,
-                CriticalChance = weapon.CriticalChance,
-                CriticalDamage = weapon.CriticalDamage,
-            };
-
-            // 创建请求实体
-            var requestEntity = ecb.CreateEntity();
-            ecb.AddComponent(requestEntity, spawnRequest);
-        }
     }
     [BurstCompile]
     public struct CalcWeaponPositionJob : IJobParallelFor
@@ -277,32 +200,69 @@ namespace Rogue
             outPositions[index] = playerPos + new float2(math.cos(newAngle), math.sin(newAngle)) * radius;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
     [BurstCompile]
-    public struct WeaponShootJob : IJobParallelFor
+    partial struct WeaponShootJob : IJobEntity
     {
         public float2 playerPos;
+        public EntityCommandBuffer ecb;
         [ReadOnly] public NativeArray<float2> enemyPositions;
-        [ReadOnly] public NativeArray<float2> weaponPositions;
-        [ReadOnly] public NativeArray<int> weaponShootTypes;
-        [ReadOnly] public NativeArray<float> weaponRanges;
-        [WriteOnly] public NativeArray<bool> outCanShoot;
-        [WriteOnly] public NativeArray<float2> outTargetPosition;
-        public void Execute(int index)
+        public void Execute(ref Weapon weapon, ref LocalTransform transform, in WeaponShoot shoot, ref WeaponCooldown cooldown, Entity entity)
         {
-            if (weaponShootTypes[index] == 0)
+            var weaponMinRange = weapon.Range;
+            var canShoot = false;
+            var targetPosition = float2.zero;
+            for (int i = 0; i < enemyPositions.Length; i++)
             {
-                var weaponPosition = weaponPositions[index];
-                var weaponMinRange = weaponRanges[index];
-                for (int i = 0; i < enemyPositions.Length; i++)
+                var distance = math.distance(transform.Position.xy, enemyPositions[i]);
+                if (distance < weaponMinRange)
                 {
-                    var distance = math.distance(weaponPosition, enemyPositions[i]);
-                    if (distance < weaponMinRange)
-                    {
-                        weaponMinRange = distance;
-                        outCanShoot[index] = true;
-                        outTargetPosition[index] = enemyPositions[i];
-                    }
+                    weaponMinRange = distance;
+                    canShoot = true;
+                    targetPosition = enemyPositions[i];
                 }
+            }
+            if (canShoot)
+            {
+                // 发射武器
+                // 获取玩家位置作为子弹生成位置（避免武器位置过远的问题）
+                var bulletPosition = transform.Position.xy;
+                var bulletDirection = transform.Position.xy - targetPosition;
+                // 生成多发子弹
+                for (int j = 0; j < weapon.BulletNum; j++)
+                {
+                    // 创建子弹发射请求
+                    // 创建子弹发射请求
+                    var spawnRequest = new BulletSpawnRequest
+                    {
+                        BulletId = weapon.BulletId,
+                        SpawnPosition = bulletPosition,
+                        Direction = bulletDirection,
+                        Damage = weapon.Damage,
+                        CriticalChance = weapon.CriticalChance,
+                        CriticalDamage = weapon.CriticalDamage,
+                    };
+
+                    // 创建请求实体
+                    var requestEntity = ecb.CreateEntity();
+                    ecb.AddComponent(requestEntity, spawnRequest);
+                }
+
+                // 启动冷却
+                cooldown.StartCooldown(weapon.Cooldown);
+                ecb.SetComponent(entity, cooldown);
+                ecb.RemoveComponent<WeaponShoot>(entity);
+
             }
         }
     }

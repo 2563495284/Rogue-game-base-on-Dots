@@ -51,7 +51,7 @@ namespace Rogue
 
         [Header("伤害")]
         public float Damage;//伤害
-        public int Range;//攻击范围
+        public float Range;//攻击范围
 
         public float Cooldown;//冷却时间
 
