@@ -22,56 +22,66 @@ namespace Rogue
             var configEntity = SystemAPI.GetSingletonEntity<Config>();
             var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
 
-            var addComponentECB = new EntityCommandBuffer(Allocator.Temp);
-            foreach (var (bullet, transform, entity) in
-                     SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>>().WithNone<BulletAnimation>().WithEntityAccess())
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            foreach (var bulletAnimationAspect in
+                     SystemAPI.Query<BulletAnimationAspect>().WithNone<BulletAnimation>())
             {
-                // 添加动画组建
-                var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bullet.ValueRO.BulletId]);
-                var bulletAnimation = new BulletAnimation(go);
-                // 添加碰撞处理器组件
-                var collisionHandler = go.GetComponent<BulletCollisionHandler>();
-                if (collisionHandler == null)
-                {
-                    collisionHandler = go.AddComponent<BulletCollisionHandler>();
-                }
-                // 初始化碰撞处理器
-                collisionHandler.Initialize(entity);
-
-                addComponentECB.AddComponent(entity, bulletAnimation);
+                bulletAnimationAspect.Initialize(ref state, ref ecb, configManaged);
             }
-            addComponentECB.Playback(state.EntityManager);
-            addComponentECB.Dispose();
 
             // 创建第二个ECB用于销毁实体
-            var destroyECB = new EntityCommandBuffer(Allocator.Temp);
-            var isMovingId = Animator.StringToHash("bRunning");
-            foreach (var (bullet, transform, bulletAnimation, entity) in
-                     SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>, BulletAnimation>().WithEntityAccess())
+            foreach (var (bulletAnimationAspect, bulletAnimation) in
+                     SystemAPI.Query<BulletAnimationAspect, BulletAnimation>())
             {
-                var animator = bulletAnimation.AnimatedGO.GetComponent<Animator>();
-                if (animator == null) continue;
-
-                // 完整的Transform同步
-                TransformUtils.SyncTransform(animator.transform, transform.ValueRO);
-
-                // 检查动画是否播放完成
-                if (IsAnimationComplete(animator))
-                {
-                    // 动画播放完成，销毁子弹
-                    DestroyBullet(bulletAnimation.AnimatedGO, entity, destroyECB);
-                }
-                else
-                {
-                    animator.SetBool(isMovingId, true);
-                }
+                bulletAnimationAspect.Update(ref state, ref ecb, bulletAnimation);
             }
-
-            // 执行EntityCommandBuffer中的所有销毁命令
-            destroyECB.Playback(state.EntityManager);
-            destroyECB.Dispose();
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
+    }
 
+    readonly partial struct BulletAnimationAspect : IAspect
+    {
+        readonly RefRW<LocalTransform> m_Transform;
+        readonly RefRO<Bullet> m_Bullet;
+
+        readonly Entity m_Entity;
+
+        public void Initialize(ref SystemState state, ref EntityCommandBuffer ecb, in ConfigManaged configManaged)
+        {
+            var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[m_Bullet.ValueRO.BulletId]);
+            var bulletAnimation = new BulletAnimation(go);
+            // 添加碰撞处理器组件
+            var collisionHandler = go.GetComponent<BulletCollisionHandler>();
+            if (collisionHandler == null)
+            {
+                collisionHandler = go.AddComponent<BulletCollisionHandler>();
+            }
+            // 初始化碰撞处理器
+            collisionHandler.Initialize(m_Entity);
+
+            ecb.AddComponent(m_Entity, bulletAnimation);
+        }
+        public void Update(ref SystemState state, ref EntityCommandBuffer ecb, in BulletAnimation bulletAnimation)
+        {
+            var isMovingId = Animator.StringToHash("bRunning");
+            var animator = bulletAnimation.AnimatedGO.GetComponent<Animator>();
+            if (animator == null) return;
+
+            // 完整的Transform同步
+            TransformUtils.SyncTransform(animator.transform, m_Transform.ValueRO);
+
+            // 检查动画是否播放完成
+            if (IsAnimationComplete(animator))
+            {
+                // 动画播放完成，销毁子弹
+                DestroyBullet(bulletAnimation.AnimatedGO, m_Entity, ecb);
+            }
+            else
+            {
+                animator.SetBool(isMovingId, true);
+            }
+        }
         /// <summary>
         /// 检查动画是否播放完成
         /// </summary>
