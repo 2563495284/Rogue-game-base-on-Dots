@@ -4,70 +4,26 @@ using UnityEngine;
 
 namespace Rogue
 {
-    // public class BulletAuthoring : MonoBehaviour
-    // {
-    //     private class Baker : Baker<BulletAuthoring>
-    //     {
-    //         public override void Bake(BulletAuthoring authoring)
-    //         {
-    //             var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
-    //             AddComponent<Bullet>(entity, new Bullet
-    //             {
-    //                 Id = authoring.bulletAssetData.Id,
-    //                 BulletType = authoring.bulletAssetData.BulletType,
-    //                 Zoom = authoring.bulletAssetData.Zoom,
-    //                 AtkBet = authoring.bulletAssetData.AtkBet,
-    //                 SpiltRadius = authoring.bulletAssetData.SpiltRadius,
-    //                 AimOffset = authoring.bulletAssetData.AimOffset,
-    //                 CreateBulletID = authoring.bulletAssetData.CreateBulletID,
-    //                 IsAtkDestroy = authoring.bulletAssetData.IsAtkDestroy,
-    //                 AtkFrame = authoring.bulletAssetData.AtkFrame,
-    //                 BulletCollisionR = authoring.bulletAssetData.BulletCollisionR,
-    //                 BulletSpeed = authoring.bulletAssetData.BulletSpeed,
-    //                 BulletAcceleration = authoring.bulletAssetData.BulletAcceleration,
-    //                 BulletDelay = authoring.bulletAssetData.BulletDelay,
-    //                 BulletInterval = authoring.bulletAssetData.BulletInterval,
-    //                 WavingAngle = authoring.bulletAssetData.WavingAngle,
-    //                 WavingRadius = authoring.bulletAssetData.WavingRadius,
-    //                 PokeWidth = authoring.bulletAssetData.PokeWidth,
-    //                 PokeLength = authoring.bulletAssetData.PokeLength,
-    //                 BulletSurroundR = authoring.bulletAssetData.BulletSurroundR,
-    //                 BulletSurroundAngle = authoring.bulletAssetData.BulletSurroundAngle,
-    //                 BulletSurroundSpeed = authoring.bulletAssetData.BulletSurroundSpeed,
-    //                 BulletSurroundDelay = authoring.bulletAssetData.BulletSurroundDelay,
-    //                 ParabolaAngle = authoring.bulletAssetData.ParabolaAngle,
-    //                 ParabolaSpeed = authoring.bulletAssetData.ParabolaSpeed,
-    //                 ParabolaDelay = authoring.bulletAssetData.ParabolaDelay,
-    //                 FixedDamage = authoring.bulletAssetData.FixedDamage,
-    //                 FixedDelay = authoring.bulletAssetData.FixedDelay,
-    //             });
+    public class BulletAuthoring : MonoBehaviour
+    {
+        public BulletAssetData BulletAssetData;
+        private class Baker : Baker<BulletAuthoring>
+        {
+            public override void Bake(BulletAuthoring authoring)
+            {
+                var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
+                AddComponent<Bullet>(entity, new Bullet
+                {
+                    BulletId = authoring.BulletAssetData.BulletId,
+                    BulletType = authoring.BulletAssetData.BulletType,
+                    SpiltRadius = authoring.BulletAssetData.SpiltRadius,
+                    CreateBulletID = authoring.BulletAssetData.CreateBulletID,
+                    IsAtkDestroy = authoring.BulletAssetData.IsAtkDestroy
+                });
 
-    //             // 添加子弹移动组件
-    //             AddComponent(entity, new BulletMovement
-    //             {
-    //                 Direction = Vector2.right, // 将在发射时设置
-    //                 StartPosition = Vector2.zero,
-    //                 BulletType = authoring.bulletAssetData.BulletType
-    //             });
-
-    //             // 添加子弹生命周期组件
-    //             var bulletLifetime = new BulletLifetime();
-    //             bulletLifetime.Initialize(authoring.bulletAssetData.BulletLifeTime);
-    //             AddComponent(entity, bulletLifetime);
-
-    //             // 添加子弹伤害组件
-    //             AddComponent(entity, new BulletDamage
-    //             {
-    //                 Damage = authoring.bulletAssetData.damage,
-    //                 CriticalChance = authoring.bulletAssetData.criticalChance,
-    //                 CriticalDamage = authoring.bulletAssetData.criticalDamage,
-    //                 HasHit = false,
-    //                 Owner = Entity.Null // 将在发射时设置
-    //             });
-
-    //         }
-    //     }
-    // }
+            }
+        }
+    }
     public enum BulletType
     {
 

@@ -34,86 +34,48 @@ namespace Rogue
 
             // 处理武器操作请求
             {
-                var ecb = new EntityCommandBuffer(Allocator.Temp);
-                var weaponSlots = state.EntityManager.GetBuffer<WeaponSlot>(playerEntity);
-                //处理创建武器请求
+                var ecb = new EntityCommandBuffer(Allocator.TempJob);
                 foreach (var (request, entity) in SystemAPI.Query<RefRO<WeaponCreateRequest>>().WithEntityAccess())
                 {
-                    if (weaponSlots.Length >= weaponManager.MaxWeaponSlots)
-                    {
-                        ecb.DestroyEntity(entity);
-                        continue;
-                    }
-                    var requestData = request.ValueRO;
-                    var weaponPrefabEntity = configManaged.WeaponPrefabEntities[requestData.WeaponPrefabIndex];
-                    // 获取武器槽位缓冲区
-                    //往后塞
-                    var slotIndex = weaponSlots.Length;
-                    // 武器跟slot是一体的，生命周期一致
-                    // 实例化武器Entity（这会复制WeaponAuthoring创建的所有组件，包括Weapon和WeaponCooldown）
+                    var weaponPrefabEntity = configManaged.WeaponPrefabEntities[request.ValueRO.WeaponPrefabIndex];
+                    var prefabWeapon = state.EntityManager.GetComponentData<Weapon>(weaponPrefabEntity);
+                    prefabWeapon.Index = request.ValueRO.Index;
+                    prefabWeapon.IsActive = true;
                     var weaponEntity = ecb.Instantiate(weaponPrefabEntity);
-                    ecb.AppendToBuffer(playerEntity, new WeaponSlot
-                    {
-                        WeaponEntity = weaponEntity,
-                        SlotIndex = slotIndex,
-                        IsActive = true,
-                        toDestroy = false
-                    });
+                    ecb.SetComponent(weaponEntity, prefabWeapon);
                     ecb.DestroyEntity(entity);
                 }
-                //处理移除武器的请求
-                foreach (var (request, entity) in SystemAPI.Query<RefRO<WeaponRemoveRequest>>().WithEntityAccess())
-                {
-                    var requestData = request.ValueRO;
-                    var slot = weaponSlots[requestData.SlotIndex];
-                    slot.toDestroy = true;
-                    weaponSlots[requestData.SlotIndex] = slot; // 写回修改
-                    ecb.DestroyEntity(entity);
-                }
+
                 ecb.Playback(state.EntityManager);
                 ecb.Dispose();
-                // 移除武器（在 Playback 之后重新获取缓冲区，避免句柄失效）
-                weaponSlots = state.EntityManager.GetBuffer<WeaponSlot>(playerEntity);
-                for (int i = weaponSlots.Length - 1; i >= 0; i--)
-                {
-                    if (weaponSlots[i].toDestroy)
-                    {
-                        weaponSlots.RemoveAt(i);
-                    }
-                }
             }
+
+            //处理移除武器的请求
+            // {
+            //     var ecb = new EntityCommandBuffer(Allocator.TempJob);
+            //     foreach (var (request, entity) in SystemAPI.Query<RefRO<WeaponRemoveRequest>>().WithEntityAccess())
+            //     {
+            //         ecb.DestroyEntity
+            //         ecb.DestroyEntity(entity);
+            //     }
+            //     ecb.Playback(state.EntityManager);
+            //     ecb.Dispose();
+            //     // 移除武器（在 Playback 之后重新获取缓冲区，避免句柄失效）
+            // }
             //更新武器位置
             {
+                var weaponQuery = SystemAPI.QueryBuilder().WithAll<Weapon>().WithAll<LocalTransform>().Build();
+                var weaponCount = weaponQuery.CalculateEntityCount();
                 var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
-                var weaponSlots = SystemAPI.GetBuffer<WeaponSlot>(playerEntity);
-                var weaponPositions = new NativeList<float2>(Allocator.TempJob);
-                foreach (var (weapon, transform) in SystemAPI.Query<RefRO<Weapon>, RefRW<LocalTransform>>())
-                {
-                    weaponPositions.Add(transform.ValueRO.Position.xy);
-                }
-                var outPositions = new NativeArray<float2>(weaponSlots.Length, Allocator.TempJob);
-                var updateWeaponPositionsJob = new CalcWeaponPositionJob
+                var updateWeaponPositionsJob = new UpdateWeaponPositionJob
                 {
                     playerPos = playerTransform.Position.xy,
-                    weaponCount = weaponSlots.Length,
+                    weaponCount = weaponCount,
                     radius = weaponManager.SurroundRadius,
                     speed = weaponManager.SurroundSpeed,
-                    outPositions = outPositions,
                     elapsedTime = elapsedTime
                 };
-                var updateWeaponPositionsJobHandle = updateWeaponPositionsJob.Schedule(weaponSlots.Length, 64);
-                updateWeaponPositionsJobHandle.Complete();
-                for (int i = 0; i < weaponSlots.Length; i++)
-                {
-                    var weaponEntity = weaponSlots[i].WeaponEntity;
-                    if (weaponEntity != Entity.Null)
-                    {
-                        var weaponTransform = SystemAPI.GetComponent<LocalTransform>(weaponEntity);
-                        weaponTransform.Position.xy = outPositions[i];
-                        SystemAPI.SetComponent(weaponEntity, weaponTransform);
-                    }
-                }
-                outPositions.Dispose();
+                updateWeaponPositionsJob.Schedule(weaponQuery, state.Dependency).Complete();
             }
 
             //处理武器射击
@@ -154,62 +116,49 @@ namespace Rogue
             }
 
         }
-        /// <summary>
-        /// 更新武器位置
-        /// </summary>
-        private void UpdateWeaponPositions(ref SystemState state, ConfigManaged configManaged, EntityCommandBuffer ecb)
-        {
-            foreach (var (weapon, transform) in SystemAPI.Query<RefRO<Weapon>, RefRW<LocalTransform>>())
-            {
-
-            }
-        }
-
-        /// <summary>
-        /// 获取所有激活的武器实体
-        /// </summary>
-        private NativeList<Entity> GetActiveWeapons(DynamicBuffer<WeaponSlot> weaponSlots)
-        {
-            var activeWeapons = new NativeList<Entity>(weaponSlots.Length, Allocator.Temp);
-
-            for (int i = 0; i < weaponSlots.Length; i++)
-            {
-                var slot = weaponSlots[i];
-                if (slot.IsActive && slot.WeaponEntity != Entity.Null)
-                {
-                    activeWeapons.Add(slot.WeaponEntity);
-                }
-            }
-
-            return activeWeapons;
-        }
     }
+    // public partial struct HandleWeaponCreateRequestJob : IJobEntity
+    // {
+    //     public EntityCommandBuffer ecb;
+    //     [ReadOnly] public NativeArray<Entity> weaponPrefabEntities;
+    //     public void Execute(ref WeaponCreateRequest request, Entity entity)
+    //     {
+    //         var weaponPrefabEntity = weaponPrefabEntities[request.WeaponPrefabIndex];
+    //         var weaponEntity = ecb.Instantiate(weaponPrefabEntity);
+    //         ecb.SetComponent(weaponEntity, new Weapon
+    //         {
+    //             Index = request.Index,
+    //             IsActive = true
+    //         });
+    //         ecb.DestroyEntity(entity);
+    //     }
+    // }
+
+    // [BurstCompile]
+    // partial struct HandleWeaponRemoveRequestJob : IJobEntity
+    // {
+    //     public EntityCommandBuffer ecb;
+    //     public void Execute(ref WeaponRemoveRequest request, Entity entity)
+    //     {
+    //         ecb.DestroyEntity(entity);
+    //     }
+    // }
+
     [BurstCompile]
-    public struct CalcWeaponPositionJob : IJobParallelFor
+    partial struct UpdateWeaponPositionJob : IJobEntity
     {
         public float2 playerPos;
         [ReadOnly] public int weaponCount;
         [ReadOnly] public float radius;
         [ReadOnly] public float speed;
         [ReadOnly] public double elapsedTime;
-        [WriteOnly] public NativeArray<float2> outPositions;
-        public void Execute(int index)
+        public void Execute(ref Weapon weapon, ref LocalTransform transform)
         {
-            var angle = 2 * math.PI / weaponCount * (index + 1);
+            var angle = 2 * math.PI / weaponCount * weapon.Index;
             var newAngle = angle + speed * (float)elapsedTime;
-            outPositions[index] = playerPos + new float2(math.cos(newAngle), math.sin(newAngle)) * radius;
+            transform.Position.xy = playerPos + new float2(math.cos(newAngle), math.sin(newAngle)) * radius;
         }
     }
-
-
-
-
-
-
-
-
-
-
 
     [BurstCompile]
     partial struct WeaponShootJob : IJobEntity

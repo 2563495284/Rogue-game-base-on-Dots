@@ -33,25 +33,28 @@ namespace Rogue
             // 处理子弹发射请求
             foreach (var (spawnRequest, entity) in SystemAPI.Query<BulletSpawnRequest>().WithEntityAccess())
             {
-                var bulletData = configManaged.BulletDatas[spawnRequest.BulletId];
+                var bulletPrefabEntity = configManaged.BulletPrefabEntities[spawnRequest.BulletId];
+
+                var bulletData = state.EntityManager.GetComponentData<Bullet>(bulletPrefabEntity);
 
                 // 检查子弹ID是否有效
-                if (bulletData.Id < 0 || bulletData.Id >= configManaged.BulletPrefabEntities.Count)
+                if (bulletData.BulletId < 0 || bulletData.BulletId >= configManaged.BulletPrefabEntities.Count)
                 {
                     ecb.DestroyEntity(entity);
                     continue;
                 }
 
                 // 获取子弹预制体Entity
-                var bulletPrefabEntity = configManaged.BulletPrefabEntities[bulletData.Id];
                 var bulletEntity = ecb.Instantiate(bulletPrefabEntity);
                 //初始化子弹组件
                 {
                     ecb.AddComponent(bulletEntity, new Bullet
                     {
-                        BulletId = bulletData.Id,
+                        BulletId = bulletData.BulletId,
                         BulletType = bulletData.BulletType,
                         SpiltRadius = bulletData.SpiltRadius,
+                        CreateBulletID = bulletData.CreateBulletID,
+                        IsAtkDestroy = bulletData.IsAtkDestroy
                     });
                 }
                 // 更新子弹位置（Baker已经设置了Transform，我们只需要更新位置）

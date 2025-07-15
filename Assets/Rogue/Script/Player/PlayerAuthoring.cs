@@ -38,10 +38,6 @@ namespace Rogue
                     CurrentWeaponIndex = 0,
                 });
 
-                // 添加武器槽位缓冲区（初始为空，动态添加）
-                var weaponSlots = AddBuffer<WeaponSlot>(entity);
-
-                // 注：槽位将在添加武器时动态创建
             }
         }
     }

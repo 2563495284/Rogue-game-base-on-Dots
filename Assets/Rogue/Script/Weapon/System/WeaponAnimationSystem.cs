@@ -28,7 +28,7 @@ namespace Rogue
             foreach (var (weapon, transform, entity) in
                      SystemAPI.Query<RefRO<Weapon>, RefRO<LocalTransform>>().WithNone<WeaponAnimation>().WithEntityAccess())
             {
-                var go = GameObject.Instantiate(configManaged.WeaponAnimationPrefabGOs[weapon.ValueRO.Id]);
+                var go = GameObject.Instantiate(configManaged.WeaponAnimationPrefabGOs[weapon.ValueRO.WeaponId]);
                 var weaponAnimation = new WeaponAnimation(go);
 
                 addComponentECB.AddComponent(entity, weaponAnimation);

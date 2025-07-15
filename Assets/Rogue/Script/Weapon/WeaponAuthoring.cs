@@ -15,7 +15,7 @@ namespace Rogue
                 var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
                 AddComponent<Weapon>(entity, new Weapon
                 {
-                    Id = authoring.WeaponAssetData.Id,
+                    WeaponId = authoring.WeaponAssetData.Id,
                     Level = authoring.WeaponAssetData.Level,
                     AnimId = authoring.WeaponAssetData.AnimId,
                     Zoom = authoring.WeaponAssetData.Zoom,
@@ -41,13 +41,15 @@ namespace Rogue
     public struct Weapon : IComponentData
     {
 
+        public int Index;//武器索引
+        public bool IsActive;//是否激活
+
         [Header("基础")]
-        public int Id;//武器id
+        public int WeaponId;//武器id
 
         public int Level;//等级
         public int AnimId;//动画id
         public int Zoom;//缩放倍率
-
 
         [Header("伤害")]
         public float Damage;//伤害

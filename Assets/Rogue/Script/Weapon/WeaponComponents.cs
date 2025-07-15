@@ -35,16 +35,6 @@ namespace Rogue
     {
 
     }
-    // 武器槽位元素（用于DynamicBuffer）
-    public struct WeaponSlot : IBufferElementData
-    {
-        public Entity WeaponEntity;     // 武器实体
-        public int SlotIndex;           // 槽位索引
-        public bool IsActive;           // 是否激活
-        public float Priority;          // 优先级（用于自动射击顺序）
-
-        public bool toDestroy; // 是否需要销毁
-    }
 
     // 武器管理器组件
     public struct WeaponManager : IComponentData
@@ -97,10 +87,12 @@ namespace Rogue
     // 武器创建请求
     public struct WeaponCreateRequest : IComponentData
     {
+        public int Index;
         public int WeaponPrefabIndex;              // 武器预制体在配置中的索引（-1表示无效）
-        public WeaponCreateRequest(int weaponPrefabIndex)
+        public WeaponCreateRequest(int weaponPrefabIndex, int index)
         {
             WeaponPrefabIndex = weaponPrefabIndex;
+            Index = index;
         }
     }
     public struct WeaponRemoveRequest : IComponentData

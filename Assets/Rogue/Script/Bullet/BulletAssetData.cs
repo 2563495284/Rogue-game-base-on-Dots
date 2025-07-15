@@ -11,7 +11,7 @@ namespace Rogue
         public string Name;//名称
 
         [Header("基础")]
-        public int Id;//子弹id
+        public int BulletId;//子弹id
         public int BulletAnimId;//子弹动画id
         public BulletType BulletType;//子弹类型
         public float damage;//伤害

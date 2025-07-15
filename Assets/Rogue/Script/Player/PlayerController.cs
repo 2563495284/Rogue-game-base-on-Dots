@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -133,9 +134,6 @@ namespace Rogue
                         case "4":
                             AddWeapon(3);
                             break;
-                        case "-":
-                            RemoveLastWeapon();
-                            break;
                     }
                 }
             }
@@ -161,9 +159,11 @@ namespace Rogue
 
             // 检查武器数量限制
             var weaponManager = entityManager.GetComponentData<WeaponManager>(playerEntity);
-            var weaponSlots = entityManager.GetBuffer<WeaponSlot>(playerEntity);
-
-            if (!weaponManager.CanAddWeapon(weaponSlots.Length))
+            EntityQuery weaponQuery = entityManager.CreateEntityQuery(
+                       ComponentType.ReadOnly<Weapon>()
+                   );
+            var weaponCount = weaponQuery.CalculateEntityCount();
+            if (!weaponManager.CanAddWeapon(weaponCount))
             {
                 Debug.LogWarning($"已达到最大武器数量限制：{weaponManager.MaxWeaponSlots}");
                 return false;
@@ -177,7 +177,7 @@ namespace Rogue
 
             // 创建武器操作请求实体（槽位索引设为-1，表示自动分配）
             var requestEntity = entityManager.CreateEntity();
-            entityManager.AddComponentData(requestEntity, new WeaponCreateRequest(weaponPrefabIndex));
+            entityManager.AddComponentData(requestEntity, new WeaponCreateRequest(weaponPrefabIndex, weaponCount));
 
             if (showDebugInfo)
             {
@@ -188,52 +188,29 @@ namespace Rogue
         }
 
         /// <summary>
-        /// 移除最后一个武器（最新添加的武器）
-        /// </summary>
-        /// <returns>是否成功移除</returns>
-        public bool RemoveLastWeapon()
-        {
-            if (playerEntity == Entity.Null || entityManager == null)
-            {
-                Debug.LogError("ECS环境未准备好！");
-                return false;
-            }
-
-            var weaponSlots = entityManager.GetBuffer<WeaponSlot>(playerEntity);
-            if (weaponSlots.Length == 0)
-            {
-                Debug.LogWarning("没有武器可以移除！");
-                return false;
-            }
-
-            // 移除最后一个武器
-            return RemoveWeapon(weaponSlots.Length - 1);
-        }
-
-        /// <summary>
         /// 移除指定槽位的武器
         /// </summary>
         /// <param name="slotIndex">槽位索引</param>
         /// <returns>是否成功移除</returns>
-        public bool RemoveWeapon(int slotIndex)
-        {
-            if (playerEntity == Entity.Null || entityManager == null)
-            {
-                Debug.LogError("ECS环境未准备好！");
-                return false;
-            }
+        // public bool RemoveWeapon(int slotIndex)
+        // {
+        //     if (playerEntity == Entity.Null || entityManager == null)
+        //     {
+        //         Debug.LogError("ECS环境未准备好！");
+        //         return false;
+        //     }
 
-            // 创建武器操作请求实体
-            var requestEntity = entityManager.CreateEntity();
-            entityManager.AddComponentData(requestEntity, new WeaponRemoveRequest(slotIndex));
+        //     // 创建武器操作请求实体
+        //     var requestEntity = entityManager.CreateEntity();
+        //     entityManager.AddComponentData(requestEntity, new WeaponRemoveRequest(slotIndex));
 
-            if (showDebugInfo)
-            {
-                Debug.Log($"创建移除武器请求：槽位{slotIndex}");
-            }
+        //     if (showDebugInfo)
+        //     {
+        //         Debug.Log($"创建移除武器请求：槽位{slotIndex}");
+        //     }
 
-            return true;
-        }
+        //     return true;
+        // }
 
         /// <summary>
         /// 设置武器射击模式
@@ -254,29 +231,6 @@ namespace Rogue
         }
 
         /// <summary>
-        /// 设置武器优先级
-        /// </summary>
-        /// <param name="slotIndex">槽位索引</param>
-        /// <param name="priority">优先级</param>
-        public void SetWeaponPriority(int slotIndex, float priority)
-        {
-            if (playerEntity == Entity.Null) return;
-
-            var weaponSlots = entityManager.GetBuffer<WeaponSlot>(playerEntity);
-
-            if (slotIndex < 0 || slotIndex >= weaponSlots.Length) return;
-
-            var slot = weaponSlots[slotIndex];
-            slot.Priority = priority;
-            weaponSlots[slotIndex] = slot;
-
-            if (showDebugInfo)
-            {
-                Debug.Log($"设置槽位 {slotIndex} 武器优先级为：{priority}");
-            }
-        }
-
-        /// <summary>
         /// 获取武器信息
         /// </summary>
         /// <returns>武器信息字符串</returns>
@@ -285,30 +239,24 @@ namespace Rogue
             if (playerEntity == Entity.Null) return "玩家实体未找到";
 
             var weaponManager = entityManager.GetComponentData<WeaponManager>(playerEntity);
-            var weaponSlots = entityManager.GetBuffer<WeaponSlot>(playerEntity);
-
-            // 计算当前激活的武器数量
-            int activeWeapons = 0;
-            for (int i = 0; i < weaponSlots.Length; i++)
-            {
-                if (weaponSlots[i].IsActive)
-                    activeWeapons++;
-            }
-
+            EntityQuery weaponQuery = entityManager.CreateEntityQuery(
+                       ComponentType.ReadOnly<Weapon>()
+                   );
+            var weapons = weaponQuery.ToComponentDataArray<Weapon>(Allocator.Temp);
+            var weaponCount = weapons.Length;
             string info = $"武器管理器信息:\n";
             info += $"射击模式: {weaponManager.FireMode}\n";
-            info += $"当前武器数: {activeWeapons}/{weaponManager.MaxWeaponSlots}\n";
+            info += $"当前武器数: {weaponCount}/{weaponManager.MaxWeaponSlots}\n";
             info += $"当前武器索引: {weaponManager.CurrentWeaponIndex}\n\n";
 
             info += "武器槽位详情:\n";
-            for (int i = 0; i < weaponSlots.Length; i++)
+            for (int i = 0; i < weaponCount; i++)
             {
-                var slot = weaponSlots[i];
+                var slot = weapons[i];
                 info += $"槽位 {i}: ";
                 if (slot.IsActive)
                 {
-                    var weapon = entityManager.GetComponentData<Weapon>(slot.WeaponEntity);
-                    info += $"武器ID {weapon.Id}, 优先级 {slot.Priority}\n";
+                    info += $"武器ID {slot.WeaponId}\n";
                 }
                 else
                 {
