@@ -120,7 +120,7 @@ namespace Rogue
 
             // 直接传递敌人的GameObject给DOTS系统
             // 在BulletCollisionEventSystem中通过EnemyAnimation反向查找对应的Entity
-            CreateCollisionEvent(enemyCollider.gameObject, BulletCollisionType.Enemy);
+            CreateCollisionEvent(enemyCollider, BulletCollisionType.Enemy);
 
             if (enableDebug)
             {
@@ -135,7 +135,7 @@ namespace Rogue
         {
 
             // 创建碰撞事件
-            CreateCollisionEvent(wallCollider.gameObject, BulletCollisionType.Wall);
+            CreateCollisionEvent(wallCollider, BulletCollisionType.Wall);
 
             if (enableDebug)
             {
@@ -146,8 +146,10 @@ namespace Rogue
         /// <summary>
         /// 创建碰撞事件通知DOTS系统
         /// </summary>
-        private void CreateCollisionEvent(GameObject target, BulletCollisionType collisionType)
+        private void CreateCollisionEvent(Collider2D collision, BulletCollisionType collisionType)
         {
+            var target = collision.gameObject;
+            var collisionPosition = collision.transform.position;
             if (!isInitialized) return;
 
             // 获取世界中的EntityManager
@@ -155,13 +157,8 @@ namespace Rogue
             if (world == null) return;
 
             var entityManager = world.EntityManager;
-            // 若实体仍为延迟实体（Index 为负），等待其回放后再处理
-            if (bulletEntity.Index < 0)
-            {
-                return;
-            }
-            // 实体已创建且有效时再继续
-            if (!entityManager.Exists(bulletEntity)) return;
+            // 若 bulletEntity 依旧为 Null 说明初始化异常，直接忽略
+            if (bulletEntity == Entity.Null) return;
 
             // 创建碰撞事件实体
             var collisionEntity = entityManager.CreateEntity();
@@ -171,9 +168,8 @@ namespace Rogue
             {
                 BulletEntity = bulletEntity,
                 CollisionType = collisionType,
-                CollisionPosition = transform.position,
+                CollisionPosition = collisionPosition,
                 TargetGameObject = target, // 注意：这是托管引用
-                IsProcessed = false
             });
 
             if (enableDebug)
@@ -239,14 +235,12 @@ namespace Rogue
         public BulletCollisionType CollisionType;
         public float3 CollisionPosition;
         public GameObject TargetGameObject; // 托管引用
-        public bool IsProcessed;
-        public BulletCollisionEvent(Entity bulletEntity, BulletCollisionType collisionType, float3 collisionPosition, GameObject targetGameObject, bool isProcessed)
+        public BulletCollisionEvent(Entity bulletEntity, BulletCollisionType collisionType, float3 collisionPosition, GameObject targetGameObject)
         {
             BulletEntity = bulletEntity;
             CollisionType = collisionType;
             CollisionPosition = collisionPosition;
             TargetGameObject = targetGameObject;
-            IsProcessed = isProcessed;
         }
         public BulletCollisionEvent()
         {

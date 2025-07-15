@@ -59,25 +59,25 @@ namespace Rogue
                     ecb.SetComponent(bulletEntity, new LocalTransform
                     {
                         Position = new float3(spawnRequest.SpawnPosition.xy, 0),
-                        Rotation = quaternion.identity,
+                        Rotation = spawnRequest.Direction.x > 0 ? quaternion.identity : quaternion.Euler(0, 180, 0),
                         Scale = 1f
                     });
                 }
                 // 添加动画组建
-                {
-                    var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bulletData.Id]);
-                    var bulletAnimation = new BulletAnimation(go);
-                    // 添加碰撞处理器组件
-                    var collisionHandler = go.GetComponent<BulletCollisionHandler>();
-                    if (collisionHandler == null)
-                    {
-                        collisionHandler = go.AddComponent<BulletCollisionHandler>();
-                    }
-                    // 初始化碰撞处理器
-                    collisionHandler.Initialize(bulletEntity);
+                // {
+                //     var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bulletData.Id]);
+                //     var bulletAnimation = new BulletAnimation(go);
+                //     // 添加碰撞处理器组件
+                //     var collisionHandler = go.GetComponent<BulletCollisionHandler>();
+                //     if (collisionHandler == null)
+                //     {
+                //         collisionHandler = go.AddComponent<BulletCollisionHandler>();
+                //     }
+                //     // 初始化碰撞处理器
+                //     collisionHandler.Initialize(bulletEntity);
 
-                    ecb.AddComponent(bulletEntity, bulletAnimation);
-                }
+                //     ecb.AddComponent(bulletEntity, bulletAnimation);
+                // }
                 // 设置子弹伤害组件
                 {
                     ecb.AddComponent(bulletEntity, new BulletDamage

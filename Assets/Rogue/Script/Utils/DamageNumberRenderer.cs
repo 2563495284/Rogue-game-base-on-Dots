@@ -29,7 +29,7 @@ namespace Rogue
     {
         public int digitIndex;    // 数字索引 (0-9)
         public int styleIndex;    // 样式索引 (0=普通, 1=暴击等)
-        public float2 scale;      // 缩放
+        public float2 size;      // 数字大小
         public float2 wpos;       // 世界位置
     }
 
@@ -71,8 +71,8 @@ namespace Rogue
 
         // 渲染配置
         private int maxDamageNumbers = 1000;
-        private readonly float damageNumberLifetime = 2.0f;
-        private readonly float damageNumberSpeed = 3.0f;
+        private readonly float damageNumberLifetime = 1.0f;
+        private readonly float damageNumberSpeed = 30.0f;
 
         // Shader 属性ID
         private static readonly int TextUvID = Shader.PropertyToID("textUv");
@@ -244,10 +244,10 @@ namespace Rogue
             quadMesh = new Mesh();
             quadMesh.vertices = new Vector3[]
             {
-                new Vector3(-50f, -50f, 0),
-                new Vector3(50f, -50f, 0),
-                new Vector3(50f, 50f, 0),
-                new Vector3(-50f, 50f, 0)
+                new Vector3(-0.5f, -0.5f, 0),
+                new Vector3(0.5f, -0.5f, 0),
+                new Vector3(0.5f, 0.5f, 0),
+                new Vector3(-0.5f, 0.5f, 0)
             };
             quadMesh.uv = new Vector2[]
             {
@@ -392,7 +392,7 @@ namespace Rogue
                     {
                         digitIndex = digit,
                         styleIndex = (int)damageData.style,
-                        scale =damageData.scale,
+                        size = size,
                         wpos = new float2(centerX, damageData.worldPosition.y),
                     };
                     textTRSData.Add(textTRS);
@@ -419,7 +419,7 @@ namespace Rogue
             {
                 var t = textTRSData[i];
                 uint packed = (uint)((t.styleIndex << 4) | (t.digitIndex & 0xF));
-                instDataList.Add(new Vector4(t.wpos.x, t.wpos.y, t.scale.x, packed));
+                instDataList.Add(new Vector4(t.wpos.x, t.wpos.y, t.size.x, packed));
             }
             damageNumberMaterial.SetVectorArray("_InstData", instDataList);
         }
@@ -442,7 +442,7 @@ namespace Rogue
                 matrices[i] = Matrix4x4.TRS(
                     new Vector3(textData.wpos.x, textData.wpos.y, 0),
                     Quaternion.identity,
-                    new Vector3(textData.scale.x, textData.scale.y, 1)
+                    new Vector3(textData.size.x, textData.size.y, 1)
                 );
             }
             var mpb = new MaterialPropertyBlock();
@@ -454,7 +454,7 @@ namespace Rogue
             {
                 var t = textTRSData[i];
                 uint packed = (uint)((t.styleIndex << 4) | (t.digitIndex & 0xF));
-                instDataList.Add(new Vector4(t.wpos.x, t.wpos.y, t.scale.x, packed));
+                instDataList.Add(new Vector4(t.wpos.x, t.wpos.y, t.size.x, packed));
             }
             mpb.SetVectorArray("_InstData", instDataList);
 

@@ -21,9 +21,30 @@ namespace Rogue
         {
             var configEntity = SystemAPI.GetSingletonEntity<Config>();
             var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
+
+            var addComponentECB = new EntityCommandBuffer(Allocator.Temp);
+            foreach (var (bullet, transform, entity) in
+                     SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>>().WithNone<BulletAnimation>().WithEntityAccess())
+            {
+                // 添加动画组建
+                var go = GameObject.Instantiate(configManaged.BulletAnimationPrefabGOs[bullet.ValueRO.BulletId]);
+                var bulletAnimation = new BulletAnimation(go);
+                // 添加碰撞处理器组件
+                var collisionHandler = go.GetComponent<BulletCollisionHandler>();
+                if (collisionHandler == null)
+                {
+                    collisionHandler = go.AddComponent<BulletCollisionHandler>();
+                }
+                // 初始化碰撞处理器
+                collisionHandler.Initialize(entity);
+
+                addComponentECB.AddComponent(entity, bulletAnimation);
+            }
+            addComponentECB.Playback(state.EntityManager);
+            addComponentECB.Dispose();
+
             // 创建第二个ECB用于销毁实体
             var destroyECB = new EntityCommandBuffer(Allocator.Temp);
-
             var isMovingId = Animator.StringToHash("bRunning");
             foreach (var (bullet, transform, bulletAnimation, entity) in
                      SystemAPI.Query<RefRO<Bullet>, RefRO<LocalTransform>, BulletAnimation>().WithEntityAccess())

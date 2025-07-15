@@ -26,7 +26,6 @@ namespace Rogue
             foreach (var (collisionEvent, eventEntity) in
                      SystemAPI.Query<BulletCollisionEvent>().WithEntityAccess())
             {
-                if (collisionEvent.IsProcessed) continue;
 
                 // 检查子弹实体是否仍然存在
                 if (!state.EntityManager.Exists(collisionEvent.BulletEntity))
@@ -96,6 +95,7 @@ namespace Rogue
                 return;
             }
 
+            var enemyTransform = state.EntityManager.GetComponentData<LocalTransform>(enemyEntity);
             // 计算伤害
             float finalDamage = CalculateDamage(bulletDamage);
 
@@ -110,7 +110,7 @@ namespace Rogue
             CreateDamageEffect(ref state, collisionEvent.CollisionPosition, finalDamage, ecb);
 
             // 创建伤害数字
-            CreateDamageNumber(ref state, collisionEvent.CollisionPosition, finalDamage, ecb);
+            CreateDamageNumber(ref state, enemyTransform.Position, finalDamage, ecb);
 
             Debug.Log($"子弹对敌人造成 {finalDamage} 点伤害, 敌人剩余血量: {enemyHealth.CurrentHealth}");
         }
