@@ -46,6 +46,46 @@ namespace Rogue
     public struct HealthBarInstancedTag : IComponentData
     {
         // 用于标记使用GPU Instance血条渲染的实体
+        public float elapseTime;
+
+        public float startFadeTime;
+
+        public float fadeTime;
+
+        public float HpAlpha;
+
+        public bool bCull;
+        public HealthBarInstancedTag(float startFadeTime, float fadeTime)
+        {
+            elapseTime = 0f;
+            this.startFadeTime = startFadeTime;
+            this.fadeTime = fadeTime;
+            HpAlpha = 1f;
+            bCull = false;
+        }
+
+        public void UpdateElapseTime(float deltaTime)
+        {
+            elapseTime += deltaTime;
+            if (elapseTime > (startFadeTime + fadeTime))
+            {
+                bCull = true;
+                return;
+            }
+            if (elapseTime > startFadeTime)
+            {
+                HpAlpha = 1f - (elapseTime - startFadeTime) / fadeTime;
+            }
+            else
+            {
+                HpAlpha = 1f;
+            }
+        }
+        public void ResetElapseTime()
+        {
+            elapseTime = 0f;
+        }
+
     }
 
     // 血条渲染配置
@@ -60,6 +100,10 @@ namespace Rogue
         public bool useDistanceCulling; // 是否使用距离剔除
         public bool useFrustumCulling;  // 是否使用视锥剔除
 
+        public float fadeTime;//消失时间
+
+        public float startFadeTime;//开始消失时间
+
         public static HealthBarRenderConfig Default => new HealthBarRenderConfig
         {
             healthBarWidth = 60f,
@@ -68,7 +112,9 @@ namespace Rogue
             fadeDistance = 20f,
             maxRenderDistance = 50f,
             useDistanceCulling = true,
-            useFrustumCulling = true
+            useFrustumCulling = true,
+            fadeTime = 1f,
+            startFadeTime = 0.5f
         };
     }
 }

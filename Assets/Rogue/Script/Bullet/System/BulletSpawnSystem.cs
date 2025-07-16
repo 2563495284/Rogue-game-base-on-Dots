@@ -54,17 +54,19 @@ namespace Rogue
                         BulletType = bulletData.BulletType,
                         SpiltRadius = bulletData.SpiltRadius,
                         CreateBulletID = bulletData.CreateBulletID,
-                        IsAtkDestroy = bulletData.IsAtkDestroy
+                        IsAtkDestroy = bulletData.IsAtkDestroy,
+                        IsFlipX = spawnRequest.IsFlipX,
                     });
                 }
                 // 更新子弹位置（Baker已经设置了Transform，我们只需要更新位置）
                 {
-                    ecb.SetComponent(bulletEntity, new LocalTransform
-                    {
-                        Position = new float3(spawnRequest.SpawnPosition.xy, 0),
-                        Rotation = spawnRequest.Direction.x > 0 ? quaternion.identity : quaternion.Euler(0, 180, 0),
-                        Scale = 1f
-                    });
+                    ecb.AddComponent(bulletEntity, new Parent { Value = spawnRequest.WeaponEntity });
+                    // ecb.SetComponent(bulletEntity, new LocalTransform
+                    // {
+                    //     Position = new float3(0),
+                    //     Rotation = quaternion.identity,
+                    //     Scale = 1f
+                    // });
                 }
                 // 添加动画组建
                 // {

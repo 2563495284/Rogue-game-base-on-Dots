@@ -22,6 +22,12 @@ namespace Rogue
             goTransform.localScale = Vector3.one * ecsTransform.Scale;
         }
 
+        public static void SyncTransform(Transform goTransform, LocalToWorld ecsTransform)
+        {
+            goTransform.position = ecsTransform.Position;
+            goTransform.rotation = ecsTransform.Rotation;
+        }
+
         /// <summary>
         /// 将ECS的LocalTransform同步到GameObject的Transform（只同步位置）
         /// </summary>
@@ -97,4 +103,4 @@ namespace Rogue
             return new quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
         }
     }
-} 
+}

@@ -30,11 +30,6 @@ namespace Rogue
             }
         }
     }
-    //武器可以设计的标记
-    public struct WeaponShoot : IComponentData
-    {
-
-    }
 
     // 武器管理器组件
     public struct WeaponManager : IComponentData

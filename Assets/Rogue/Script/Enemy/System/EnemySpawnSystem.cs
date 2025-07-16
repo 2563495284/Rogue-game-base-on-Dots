@@ -41,16 +41,9 @@ namespace Rogue
                     transform.Position = spawnPosition;
                     state.EntityManager.SetComponentData(enemyEntity, transform);
 
-                    // 设置敌人移动参数（确保方向仅在x-y平面）
-                    var randomDirection = rand.NextFloat3Direction();
-                    var planarDirection = math.normalize(new float3(randomDirection.x, randomDirection.y, 0));
-
                     var enemyMovement = new EnemyMovement
                     {
-                        Direction = planarDirection,
                         Speed = config.EnemyMoveSpeed,
-                        DirectionChangeTimer = 0f,
-                        DirectionChangeInterval = config.EnemyDirectionChangeInterval + rand.NextFloat(-0.5f, 0.5f) // 添加一些随机变化
                     };
                     state.EntityManager.SetComponentData(enemyEntity, enemyMovement);
 

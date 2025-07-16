@@ -144,10 +144,14 @@ namespace Rogue
                          .WithEntityAccess())
             {
                 totalEnemies++;
-
+                var tag = SystemAPI.GetComponent<HealthBarInstancedTag>(entity);
+                tag.UpdateElapseTime(SystemAPI.Time.DeltaTime);
                 // 检查血量是否需要显示
-                // if (health.ValueRO.CurrentHealth >= health.ValueRO.MaxHealth || health.ValueRO.IsDead)
-                //     continue;
+                if (health.ValueRO.CurrentHealth >= health.ValueRO.MaxHealth || health.ValueRO.IsDead)
+                    continue;
+
+                if (tag.bCull)
+                    continue;
 
                 validEnemies++;
 
@@ -159,22 +163,11 @@ namespace Rogue
                 // if (renderConfig.useDistanceCulling && distance > renderConfig.maxRenderDistance)
                 //     continue;
 
-                // 视锥剔除
-                // if (renderConfig.useFrustumCulling && !IsInCameraFrustum(healthBarWorldPos))
-                //     continue;
-
                 // 计算屏幕坐标
                 Vector3 screenPos = mainCamera.WorldToScreenPoint(healthBarWorldPos);
                 if (screenPos.z <= 0) continue; // 在相机后面
 
                 // 计算透明度（基于距离）
-                float alpha = 1.0f;
-                if (distance > renderConfig.fadeDistance)
-                {
-                    alpha = 1.0f - (distance - renderConfig.fadeDistance) /
-                           (renderConfig.maxRenderDistance - renderConfig.fadeDistance);
-                    alpha = math.max(0, alpha);
-                }
 
                 // 创建血条数据
                 var healthData = new HealthBarInstanceData
@@ -186,7 +179,7 @@ namespace Rogue
                         0
                     ),
                     positionData = new float4(worldPos, 1.0f),
-                    colorOverride = GetHealthColor(health.ValueRO.HealthPercentage, alpha),
+                    colorOverride = GetHealthColor(health.ValueRO.HealthPercentage, tag.HpAlpha),
                     uiTransform = new float4(screenPos.x, screenPos.y, renderConfig.healthBarWidth, renderConfig.healthBarHeight)
                 };
 

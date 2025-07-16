@@ -15,7 +15,11 @@ namespace Rogue
                 var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
                 AddComponent<Enemy>(entity);
                 AddComponent<EnemyMovement>(entity);
-                AddComponent<HealthBarInstancedTag>(entity);
+                AddComponent(entity, new HealthBarInstancedTag
+                {
+                    startFadeTime = 0.5f,
+                    fadeTime = 1f
+                });
                 AddComponent(entity, new EnemyHealth
                 {
                     MaxHealth = authoring.maxHealth,
@@ -38,10 +42,7 @@ namespace Rogue
 
     public struct EnemyMovement : IComponentData
     {
-        public float3 Direction;
         public float Speed;
-        public float DirectionChangeTimer;
-        public float DirectionChangeInterval;
     }
 
     public enum EnemyState

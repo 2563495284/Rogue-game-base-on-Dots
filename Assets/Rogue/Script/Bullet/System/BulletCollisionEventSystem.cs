@@ -101,18 +101,19 @@ namespace Rogue
 
             // 应用伤害
             enemyHealth.TakeDamage(finalDamage);
+            var tag = state.EntityManager.GetComponentData<HealthBarInstancedTag>(enemyEntity);
+            tag.ResetElapseTime();
+            state.EntityManager.SetComponentData(enemyEntity, tag);
             state.EntityManager.SetComponentData(enemyEntity, enemyHealth);
 
             // 创建敌人受伤事件
-            CreateEnemyHitEvent(ref state, enemyEntity, finalDamage, collisionEvent.BulletEntity, ecb);
+            // CreateEnemyHitEvent(ref state, enemyEntity, finalDamage, collisionEvent.BulletEntity, ecb);
 
             // 创建伤害效果
-            CreateDamageEffect(ref state, collisionEvent.CollisionPosition, finalDamage, ecb);
+            // CreateDamageEffect(ref state, collisionEvent.CollisionPosition, finalDamage, ecb);
 
             // 创建伤害数字
             CreateDamageNumber(ref state, enemyTransform.Position, finalDamage, ecb);
-
-            Debug.Log($"子弹对敌人造成 {finalDamage} 点伤害, 敌人剩余血量: {enemyHealth.CurrentHealth}");
         }
 
         /// <summary>

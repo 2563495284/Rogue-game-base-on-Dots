@@ -44,7 +44,7 @@ namespace Rogue
                 if (animator == null) continue;
 
                 // 完整的Transform同步
-                SyncTransform(animator.transform, transform.ValueRO);
+                SyncTransform(enemyAnimation.AnimatedGO.transform, transform.ValueRO);
 
                 // 动画状态同步
                 animator.SetBool(isMovingId, enemy.ValueRO.IsMoving());

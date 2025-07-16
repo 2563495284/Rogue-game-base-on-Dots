@@ -42,7 +42,8 @@ namespace Rogue
 
     readonly partial struct BulletAnimationAspect : IAspect
     {
-        readonly RefRW<LocalTransform> m_Transform;
+
+        readonly RefRW<LocalToWorld> m_LocalToWorld;
         readonly RefRO<Bullet> m_Bullet;
 
         readonly Entity m_Entity;
@@ -67,9 +68,9 @@ namespace Rogue
             var isMovingId = Animator.StringToHash("bRunning");
             var animator = bulletAnimation.AnimatedGO.GetComponent<Animator>();
             if (animator == null) return;
-
+            bulletAnimation.AnimatedGO.GetComponent<SpriteRenderer>().flipX = m_Bullet.ValueRO.IsFlipX;
             // 完整的Transform同步
-            TransformUtils.SyncTransform(animator.transform, m_Transform.ValueRO);
+            TransformUtils.SyncTransform(bulletAnimation.AnimatedGO.transform, m_LocalToWorld.ValueRO);
 
             // 检查动画是否播放完成
             if (IsAnimationComplete(animator))

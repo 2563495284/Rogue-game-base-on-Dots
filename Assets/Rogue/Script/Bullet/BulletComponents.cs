@@ -59,12 +59,15 @@ namespace Rogue
 
     public struct BulletSpawnRequest : IComponentData
     {
+        public Entity WeaponEntity;
         public int BulletId;
-        public float2 SpawnPosition;
-        public float2 Direction;
+        // public float2 SpawnPosition;
+        // public float2 Direction;
         public float Damage;
         public float CriticalChance;
         public float CriticalDamage;
+
+        public bool IsFlipX;
     }
 
     //子弹动画组件（托管组件，用于存储Animator引用）

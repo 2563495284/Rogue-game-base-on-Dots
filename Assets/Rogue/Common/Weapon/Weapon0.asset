@@ -17,8 +17,8 @@ MonoBehaviour:
   Level: 0
   AnimId: 0
   Zoom: 1
-  Damage: 111
-  Range: 50
+  Damage: 5
+  Range: 200
   Cooldown: 1
   Attribute: 0
   CriticalChance: 0

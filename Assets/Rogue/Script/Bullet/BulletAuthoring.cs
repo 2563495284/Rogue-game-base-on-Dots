@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Rogue
@@ -12,7 +13,8 @@ namespace Rogue
             public override void Bake(BulletAuthoring authoring)
             {
                 var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
-                AddComponent<Bullet>(entity, new Bullet
+                // AddComponent<LocalTransform>(entity);
+                AddComponent(entity, new Bullet
                 {
                     BulletId = authoring.BulletAssetData.BulletId,
                     BulletType = authoring.BulletAssetData.BulletType,
@@ -36,9 +38,9 @@ namespace Rogue
     }
     public struct Bullet : IComponentData
     {
-
         public int BulletId;//子弹id
         public BulletType BulletType;//子弹类型
+        public bool IsFlipX;
 
         // public float AtkBet;//攻击倍率
 

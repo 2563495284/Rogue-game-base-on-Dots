@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Rogue
@@ -13,7 +14,9 @@ namespace Rogue
             public override void Bake(WeaponAuthoring authoring)
             {
                 var entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
-                AddComponent<Weapon>(entity, new Weapon
+                // AddBuffer<Child>(entity);
+                // AddComponent<LocalTransform>(entity);
+                AddComponent(entity, new Weapon
                 {
                     WeaponId = authoring.WeaponAssetData.Id,
                     Level = authoring.WeaponAssetData.Level,

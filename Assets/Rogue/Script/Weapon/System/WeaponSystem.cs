@@ -80,21 +80,6 @@ namespace Rogue
 
             //处理武器射击
             {
-                // 更新所有武器的冷却时间
-                var addShootEcb = new EntityCommandBuffer(Allocator.Temp);
-                foreach (var (weapon, cooldown, entity) in
-                     SystemAPI.Query<RefRO<Weapon>, RefRW<WeaponCooldown>>().WithNone<WeaponShoot>().WithEntityAccess())
-                {
-                    var currentCooldown = cooldown.ValueRW;
-                    currentCooldown.UpdateCooldown(deltaTime);
-                    cooldown.ValueRW = currentCooldown;
-                    if (currentCooldown.IsReady)
-                    {
-                        addShootEcb.AddComponent<WeaponShoot>(entity);
-                    }
-                }
-                addShootEcb.Playback(state.EntityManager);
-                addShootEcb.Dispose();
                 //处理武器射击
                 var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
                 var enemyPositions = new NativeList<float2>(Allocator.TempJob);
@@ -106,8 +91,8 @@ namespace Rogue
                 var weaponShootJob = new WeaponShootJob
                 {
                     ecb = ecb,
-                    playerPos = playerTransform.Position.xy,
                     enemyPositions = enemyPositions.AsArray(),
+                    deltaTime = deltaTime,
                 };
                 weaponShootJob.Schedule(state.Dependency).Complete();
                 enemyPositions.Dispose();
@@ -163,13 +148,18 @@ namespace Rogue
     [BurstCompile]
     partial struct WeaponShootJob : IJobEntity
     {
-        public float2 playerPos;
         public EntityCommandBuffer ecb;
+        public float deltaTime;
         [ReadOnly] public NativeArray<float2> enemyPositions;
-        public void Execute(ref Weapon weapon, ref LocalTransform transform, in WeaponShoot shoot, ref WeaponCooldown cooldown, Entity entity)
+        public void Execute(ref Weapon weapon, ref LocalTransform transform, ref WeaponCooldown cooldown, Entity entity)
         {
+            if (!cooldown.IsReady)
+            {
+                cooldown.UpdateCooldown(deltaTime);
+                return;
+            }
             var weaponMinRange = weapon.Range;
-            var canShoot = false;
+            var findTarget = false;
             var targetPosition = float2.zero;
             for (int i = 0; i < enemyPositions.Length; i++)
             {
@@ -177,16 +167,14 @@ namespace Rogue
                 if (distance < weaponMinRange)
                 {
                     weaponMinRange = distance;
-                    canShoot = true;
+                    findTarget = true;
                     targetPosition = enemyPositions[i];
                 }
             }
-            if (canShoot)
+            if (findTarget)
             {
+                var isFlipX = transform.Position.x - targetPosition.x > 0;
                 // 发射武器
-                // 获取玩家位置作为子弹生成位置（避免武器位置过远的问题）
-                var bulletPosition = transform.Position.xy;
-                var bulletDirection = transform.Position.xy - targetPosition;
                 // 生成多发子弹
                 for (int j = 0; j < weapon.BulletNum; j++)
                 {
@@ -194,12 +182,12 @@ namespace Rogue
                     // 创建子弹发射请求
                     var spawnRequest = new BulletSpawnRequest
                     {
+                        WeaponEntity = entity,
                         BulletId = weapon.BulletId,
-                        SpawnPosition = bulletPosition,
-                        Direction = bulletDirection,
                         Damage = weapon.Damage,
                         CriticalChance = weapon.CriticalChance,
                         CriticalDamage = weapon.CriticalDamage,
+                        IsFlipX = isFlipX,
                     };
 
                     // 创建请求实体
@@ -210,8 +198,6 @@ namespace Rogue
                 // 启动冷却
                 cooldown.StartCooldown(weapon.Cooldown);
                 ecb.SetComponent(entity, cooldown);
-                ecb.RemoveComponent<WeaponShoot>(entity);
-
             }
         }
     }
