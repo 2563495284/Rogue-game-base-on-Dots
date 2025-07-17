@@ -60,12 +60,12 @@ namespace Rogue
                 // 更新子弹位置（Baker已经设置了Transform，我们只需要更新位置）
                 {
                     ecb.AddComponent(bulletEntity, new Parent { Value = spawnRequest.WeaponEntity });
-                    // ecb.SetComponent(bulletEntity, new LocalTransform
-                    // {
-                    //     Position = new float3(0),
-                    //     Rotation = quaternion.identity,
-                    //     Scale = 1f
-                    // });
+                    ecb.SetComponent(bulletEntity, new LocalTransform
+                    {
+                        Position = new float3(21.6f, -21.8f, 0),
+                        Rotation = quaternion.identity,
+                        Scale = 1f
+                    });
                 }
                 // 添加动画组建
                 // {

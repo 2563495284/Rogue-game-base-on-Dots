@@ -56,12 +56,16 @@ MonoBehaviour:
   EnemyAnimatedPrefabGO: {fileID: 7617736419631500257, guid: 03e90cf68354a284692db04c324fb19a, type: 3}
   WeaponPrefabGOs:
   - {fileID: 3851849270322205962, guid: 79fae4e227d91427095753da89c4cb15, type: 3}
+  - {fileID: 3851849270322205962, guid: c4bacb84f954db14ea6e134da557c732, type: 3}
   WeaponAnimationPrefabGOs:
   - {fileID: 6163820735451155453, guid: cc41cc601294f459da481b683deca1ec, type: 3}
+  - {fileID: 6163820735451155453, guid: b9a1ef0636afe8446a485b1531bda243, type: 3}
   BulletPrefabGOs:
   - {fileID: 6163820735451155453, guid: de824f238d80e490b97605fbef228495, type: 3}
+  - {fileID: 6163820735451155453, guid: fa82c9568276c96499ab4e9e1b886234, type: 3}
   BulletAnimationPrefabGOs:
   - {fileID: 6163820735451155453, guid: b7b8215e7b6a07443a18f164b133720b, type: 3}
+  - {fileID: 6163820735451155453, guid: 39e70e9b427df024d80aa59f41bac581, type: 3}
 --- !u!114 &850455571819818384
 MonoBehaviour:
   m_ObjectHideFlags: 0
