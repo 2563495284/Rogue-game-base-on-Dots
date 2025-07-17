@@ -13,7 +13,7 @@ Shader "Custom/DamageNumber"
         Tags { "RenderType"="Transparent" "Queue"="Overlay" "IgnoreProjector"="True" }
         Blend SrcAlpha OneMinusSrcAlpha
         ZTest Always
-        ZWrite Off
+        ZWrite True
         Cull Off
         
         Pass
@@ -66,7 +66,7 @@ Shader "Custom/DamageNumber"
                 localVertex *= scale;
                 
                 // Billboard效果 - 将2D位置转换为3D世界位置
-                float4 worldPos3D = float4(worldPos.x + localVertex.x, worldPos.y + localVertex.y, 0, 1);
+                float4 worldPos3D = float4(worldPos.x + localVertex.x, worldPos.y + localVertex.y, -90, 1);
                 o.vertex = mul(UNITY_MATRIX_VP, worldPos3D);
                 
                 // 根据样式索引、数字索引和顶点ID获取UV坐标

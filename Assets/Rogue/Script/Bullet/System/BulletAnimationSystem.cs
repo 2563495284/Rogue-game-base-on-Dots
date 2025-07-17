@@ -71,7 +71,6 @@ namespace Rogue
             var isMovingId = Animator.StringToHash("bRunning");
             var animator = bulletAnimation.AnimatedGO.GetComponent<Animator>();
             if (animator == null) return;
-            bulletAnimation.AnimatedGO.GetComponent<SpriteRenderer>().flipX = m_Bullet.ValueRO.IsFlipX;
             // 完整的Transform同步
             TransformUtils.SyncTransform(bulletAnimation.AnimatedGO.transform, m_LocalToWorld.ValueRO);
 

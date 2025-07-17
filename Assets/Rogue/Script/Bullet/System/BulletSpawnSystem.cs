@@ -54,8 +54,7 @@ namespace Rogue
                         BulletType = bulletData.BulletType,
                         SpiltRadius = bulletData.SpiltRadius,
                         CreateBulletID = bulletData.CreateBulletID,
-                        IsAtkDestroy = bulletData.IsAtkDestroy,
-                        IsFlipX = spawnRequest.IsFlipX,
+                        IsAtkDestroy = bulletData.IsAtkDestroy
                     });
                 }
                 // 更新子弹位置（Baker已经设置了Transform，我们只需要更新位置）

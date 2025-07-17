@@ -175,6 +175,8 @@ namespace Rogue
             if (findTarget)
             {
                 var isFlipX = transform.Position.x - targetPosition.x > 0;
+                transform.Rotation = quaternion.RotateY(isFlipX ? 180 : 0);
+
                 // 发射武器
                 // 生成多发子弹
                 for (int j = 0; j < weapon.BulletNum; j++)
@@ -187,8 +189,7 @@ namespace Rogue
                         BulletId = weapon.BulletId,
                         Damage = weapon.Damage,
                         CriticalChance = weapon.CriticalChance,
-                        CriticalDamage = weapon.CriticalDamage,
-                        IsFlipX = isFlipX,
+                        CriticalDamage = weapon.CriticalDamage
                     };
 
                     // 创建请求实体

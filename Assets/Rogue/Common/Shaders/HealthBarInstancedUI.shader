@@ -22,7 +22,7 @@ Shader "Custom/HealthBarInstancedUI"
             
             Blend SrcAlpha OneMinusSrcAlpha
             ZTest Always
-            ZWrite Off
+            ZWrite True
             Cull Off
             
             CGPROGRAM

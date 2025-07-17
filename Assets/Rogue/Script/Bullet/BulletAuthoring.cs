@@ -40,7 +40,6 @@ namespace Rogue
     {
         public int BulletId;//子弹id
         public BulletType BulletType;//子弹类型
-        public bool IsFlipX;
 
         // public float AtkBet;//攻击倍率
 
