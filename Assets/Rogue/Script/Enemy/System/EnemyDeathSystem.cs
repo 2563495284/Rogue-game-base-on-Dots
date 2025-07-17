@@ -29,7 +29,6 @@ namespace Rogue
             // 系统创建时的初始化
         }
 
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
@@ -58,7 +57,7 @@ namespace Rogue
             }
 
             // 处理死亡后的逻辑
-            foreach (var (deathTag, entity) in SystemAPI.Query<EnemyDeathTag>().WithEntityAccess())
+            foreach (var (deathTag, enemyAnimation, entity) in SystemAPI.Query<EnemyDeathTag, EnemyAnimation>().WithEntityAccess())
             {
                 float timeSinceDeath = (float)SystemAPI.Time.ElapsedTime - deathTag.DeathTime;
 
@@ -85,6 +84,7 @@ namespace Rogue
                 // 延迟销毁敌人实体（给动画和特效留出时间）
                 if (timeSinceDeath > 2f) // 2秒后销毁
                 {
+                    GameObject.Destroy(enemyAnimation.AnimatedGO);
                     ecb.DestroyEntity(entity);
                 }
             }

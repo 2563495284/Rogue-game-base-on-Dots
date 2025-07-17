@@ -11,6 +11,7 @@ namespace Rogue
     /// 子弹碰撞事件处理系统 - 处理从MonoBehaviour发来的碰撞事件
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(BulletAnimationSystem))]
     public partial struct BulletCollisionEventSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
@@ -74,10 +75,10 @@ namespace Rogue
             var bulletDamage = state.EntityManager.GetComponentData<BulletDamage>(collisionEvent.BulletEntity);
 
             // 查找对应的敌人实体
-            var enemyEntity = FindEnemyEntity(ref state, collisionEvent.TargetGameObject);
+            var enemyEntity = FindEnemyEntity(ref state, collisionEvent.TargetGameObjectHashCode);
             if (enemyEntity == Entity.Null)
             {
-                Debug.LogWarning($"无法找到对应的敌人实体: {collisionEvent.TargetGameObject?.name}");
+                Debug.LogWarning($"无法找到对应的敌人实体: {collisionEvent.TargetGameObjectHashCode}");
                 return;
             }
 
@@ -141,23 +142,20 @@ namespace Rogue
         /// <summary>
         /// 查找对应的敌人实体
         /// </summary>
-        private Entity FindEnemyEntity(ref SystemState state, GameObject enemyGO)
+        private Entity FindEnemyEntity(ref SystemState state, int enemyGOHashCode)
         {
-            if (enemyGO == null) return Entity.Null;
-
-            // 通过EnemyAnimation的AnimatedGO反向查找对应的Entity
-            // 这里的enemyGO就是AnimatedGO，直接使用EnemyAnimation的owner字段
-            foreach (var (enemyHealth, enemyAnimation, entity) in
-                     SystemAPI.Query<EnemyHealth, EnemyAnimation>().WithEntityAccess())
+            foreach (var (enemyAnimation, entity) in
+                     SystemAPI.Query<EnemyAnimation>().WithEntityAccess())
             {
-                if (enemyAnimation.AnimatedGO == enemyGO)
+                if (enemyAnimation.AnimatedGO.GetHashCode() == enemyGOHashCode && enemyAnimation.owner != Entity.Null)
                 {
                     // 直接返回EnemyAnimation存储的owner Entity
                     return enemyAnimation.owner;
                 }
-            }
 
-            Debug.LogWarning($"无法找到对应的敌人实体: {enemyGO.name}");
+            }
+            Debug.LogWarning($"无法找到对应的敌人实体 1: {enemyGOHashCode}");
+
             return Entity.Null;
         }
 

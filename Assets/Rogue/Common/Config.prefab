@@ -48,9 +48,9 @@ MonoBehaviour:
   PlayerPrefabGO: {fileID: 943049589341152679, guid: b35f64339c173944cbcb1848e1e0d8be, type: 3}
   PlayerAnimatedPrefabGO: {fileID: 7100645380113196838, guid: 6c9be4e421e0c5e4692b0a6d059bbe6a, type: 3}
   PlayerControllerGO: {fileID: 7100645380113196838, guid: 39b7c73342b7849608b4096b4cfc8e40, type: 3}
-  NumEnemies: 100
+  NumEnemies: 20
   EnemySpawnAreaSize: 400
-  EnemyMoveSpeed: 20
+  EnemyMoveSpeed: 0
   EnemyDirectionChangeInterval: 5
   EnemyPrefabGO: {fileID: 7617736419631500257, guid: 39ae9437ced724b6e927f2ff00cf3906, type: 3}
   EnemyAnimatedPrefabGO: {fileID: 7617736419631500257, guid: 03e90cf68354a284692db04c324fb19a, type: 3}
@@ -62,8 +62,6 @@ MonoBehaviour:
   - {fileID: 6163820735451155453, guid: de824f238d80e490b97605fbef228495, type: 3}
   BulletAnimationPrefabGOs:
   - {fileID: 6163820735451155453, guid: b7b8215e7b6a07443a18f164b133720b, type: 3}
-  BulletDatas:
-  - {fileID: 11400000, guid: feaeb802f4ed3d34b8fb585fac53d080, type: 2}
 --- !u!114 &850455571819818384
 MonoBehaviour:
   m_ObjectHideFlags: 0

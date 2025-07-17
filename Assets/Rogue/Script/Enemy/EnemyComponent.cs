@@ -34,6 +34,7 @@ namespace Rogue
         {
             CurrentHealth = math.max(0, CurrentHealth - damage);
             IsDead = CurrentHealth <= 0;
+            Debug.Log($"EnemyHealth: TakeDamage: {damage}, CurrentHealth: {CurrentHealth}, IsDead: {IsDead}");
         }
 
         public void Heal(float amount)
@@ -72,6 +73,7 @@ namespace Rogue
                 bCull = true;
                 return;
             }
+            bCull = false;
             if (elapseTime > startFadeTime)
             {
                 HpAlpha = 1f - (elapseTime - startFadeTime) / fadeTime;
@@ -108,7 +110,7 @@ namespace Rogue
         {
             healthBarWidth = 60f,
             healthBarHeight = 8f,
-            yOffset = 0.5f,
+            yOffset = 30.0f,
             fadeDistance = 20f,
             maxRenderDistance = 50f,
             useDistanceCulling = true,

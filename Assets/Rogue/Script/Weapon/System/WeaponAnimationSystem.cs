@@ -45,7 +45,7 @@ namespace Rogue
 
                 // 完整的Transform同步
                 TransformUtils.SyncTransform(animator.transform, transform.ValueRO);
-                animator.SetBool(isIdleId, true);
+                // animator.SetBool(isIdleId, true);
             }
 
         }

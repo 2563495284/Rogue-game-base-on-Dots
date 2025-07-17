@@ -78,11 +78,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/Firefighters/Step 1/BucketAuthoring.cs" />
-    <Compile Include="Assets/Rogue/Script/Bullet/System/BulletDamageSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Player/PlayerController.cs" />
-    <Compile Include="Assets/Rogue/Script/Bullet/System/BulletMovementSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Player/PlayerAuthoring.cs" />
-    <Compile Include="Assets/Rogue/Script/Enemy/HealthBarRenderConfigAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 1/PondAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 3/BucketSystem.cs" />
     <Compile Include="Assets/Kickball/Step 2/PlayerAuthoring.cs" />
@@ -106,12 +103,11 @@
     <Compile Include="Assets/Tornado/ParticleAuthoring.cs" />
     <Compile Include="Assets/Kickball/Step 4/NewBallMovementSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Components.cs" />
-    <Compile Include="Assets/Rogue/Script/Enemy/HealthBarInstancedRenderer.cs" />
+    <Compile Include="Assets/Rogue/Script/Enemy/System/EnemyDeathSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Weapon/WeaponComponents.cs" />
     <Compile Include="Assets/Rogue/Script/Enemy/System/EnemyMovementSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Player/System/PlayerAnimationSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Bullet/System/BulletCollisionEventSystem.cs" />
-    <Compile Include="Assets/Rogue/Script/Enemy/EnemyDeathSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 3/BotSystem.cs" />
     <Compile Include="Assets/Tornado/BarAuthoring.cs" />
     <Compile Include="Assets/Rogue/Script/Enemy/EnemyComponent.cs" />
@@ -132,11 +128,11 @@
     <Compile Include="Assets/Kickball/Common/ExecuteAuthoring.cs" />
     <Compile Include="Assets/Firefighters/Step 4/UIController.cs" />
     <Compile Include="Assets/Kickball/Step 5/BallKickingSystem.cs" />
-    <Compile Include="Assets/Rogue/Script/Enemy/DamageNumberSpawner.cs" />
     <Compile Include="Assets/Firefighters/Step 1/SpawnSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 4/UISystem.cs" />
     <Compile Include="Assets/Firefighters/Step 4/AnimationSystem.cs" />
     <Compile Include="Assets/Rogue/Common/Weapon/WeaponAssetData.cs" />
+    <Compile Include="Assets/Rogue/Script/Utils/HealthBarInstancedRenderer.cs" />
     <Compile Include="Assets/Kickball/Step 2/PlayerMovementSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Weapon/System/WeaponAnimationSystem.cs" />
     <Compile Include="Assets/Tornado/BuildingRenderSystem.cs" />
@@ -145,11 +141,11 @@
     <Compile Include="Assets/Rogue/Script/Player/System/PlayerSpawnSystem.cs" />
     <Compile Include="Assets/Tornado/CameraSystem.cs" />
     <Compile Include="Assets/Rogue/Script/Enemy/EnemyAuthoring.cs" />
+    <Compile Include="Assets/Rogue/Script/Utils/DamageNumberSpawner.cs" />
     <Compile Include="Assets/Rogue/Script/Bullet/BulletAssetData.cs" />
     <Compile Include="Assets/Firefighters/Step 2/HeatSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 1/BotAuthoring.cs" />
     <Compile Include="Assets/Kickball/Step 2/PlayerSpawnerSystem.cs" />
-    <Compile Include="Assets/Rogue/Script/Bullet/System/BulletLifetimeSystem.cs" />
     <Compile Include="Assets/Firefighters/Step 1/Components.cs" />
     <Compile Include="Assets/Rogue/Script/Bullet/System/BulletSpawnSystem.cs" />
   </ItemGroup>

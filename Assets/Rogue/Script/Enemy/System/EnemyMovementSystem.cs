@@ -19,7 +19,6 @@ namespace Rogue
             state.RequireForUpdate<ExecuteEnemyMovement>();
         }
 
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var playerEntity = SystemAPI.GetSingletonEntity<Player>();
@@ -30,31 +29,35 @@ namespace Rogue
 
             var random = new Unity.Mathematics.Random((uint)(SystemAPI.Time.ElapsedTime * 1000));
 
-            foreach (var (transform, movement, enemyAnimation, enemy) in
-                     SystemAPI.Query<RefRW<LocalTransform>, RefRO<EnemyMovement>, EnemyAnimation, RefRO<Enemy>>()
-                         .WithAll<Enemy>())
+            foreach (var (movement, enemyAnimation, enemy, entity) in
+                     SystemAPI.Query<RefRO<EnemyMovement>, EnemyAnimation, RefRO<Enemy>>()
+                         .WithAll<Enemy>().WithEntityAccess())
             {
                 // 只有在移动状态下才更新移动逻辑
                 if (!enemy.ValueRO.IsMoving())
                     continue;
-
+                if (!enemyAnimation.AnimatedGO)
+                    continue;
                 var currentMovement = movement.ValueRO;
-                var currentTransform = transform.ValueRW;
-                var direction = math.normalize(playerTransform.Position - currentTransform.Position);
-
+                var enemyTransform = enemyAnimation.AnimatedGO.transform;
                 // 计算新位置（保持z坐标不变）
-                var currentPos = currentTransform.Position;
+                var delta = playerTransform.Position.xy - new float2(enemyTransform.position.x, enemyTransform.position.y);
+                if (math.lengthsq(delta) < 0.01f)
+                    continue;
+                var direction = math.normalize(delta);
                 var deltaMovement = direction * currentMovement.Speed * deltaTime;
-                var newPosition = new float3(
-                    currentPos.x + deltaMovement.x,
-                    currentPos.y + deltaMovement.y,
-                    currentPos.z // 保持z坐标不变
-                );
+                var newPosition = new Vector3(deltaMovement.x, deltaMovement.y, 0);
                 enemyAnimation.AnimatedGO.GetComponent<SpriteRenderer>().flipX = direction.x < 0;
                 // 更新位置
-                currentTransform.Position = newPosition;
-                // 更新组件
-                transform.ValueRW = currentTransform;
+                enemyTransform.Translate(newPosition);
+                enemyTransform.rotation = Quaternion.identity;
+
+                state.EntityManager.SetComponentData(entity, new LocalTransform
+                {
+                    Position = new float3(enemyTransform.position.x, enemyTransform.position.y, 0),
+                    Rotation = quaternion.identity,
+                    Scale = 1f
+                });
             }
         }
     }

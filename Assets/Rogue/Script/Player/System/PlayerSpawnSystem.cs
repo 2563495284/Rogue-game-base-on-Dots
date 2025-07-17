@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Rogue
 {
@@ -16,7 +17,6 @@ namespace Rogue
             state.RequireForUpdate<ExecuteSpawnPlayer>();
         }
 
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             state.Enabled = false;
@@ -28,6 +28,20 @@ namespace Rogue
                 var playerTransform = state.EntityManager.GetComponentData<LocalTransform>(playerEntity);
                 playerTransform.Position = new float3(0, 0, 0);
                 state.EntityManager.SetComponentData(playerEntity, playerTransform);
+
+                var configEntity = SystemAPI.GetSingletonEntity<Config>();
+                var configManaged = state.EntityManager.GetComponentObject<ConfigManaged>(configEntity);
+
+                // 使用 EntityCommandBuffer 来延迟结构性更改
+                var ecb = new EntityCommandBuffer(Allocator.Temp);
+                //playerAnimation
+                {
+                    var go = GameObject.Instantiate(configManaged.PlayerAnimatedPrefabGO);
+                    var playerAnimation = new PlayerAnimation(go);
+                    // 延迟添加组件
+                    ecb.AddComponent(playerEntity, playerAnimation);
+                }
+                ecb.Playback(state.EntityManager);
             }
         }
     }

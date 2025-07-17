@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4000811665456770667}
   - component: {fileID: 4695099600240634381}
   - component: {fileID: -38910660230695531}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: EnemyAnimation
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -76,8 +76,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1907466465
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: -158090828, guid: 221107eb8bb6fad449ac40f963a2b22e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -146,7 +146,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.33889008, y: -0.38840294}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -156,7 +156,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 58.53055, y: 47.65903}
+  m_Size: {x: 55, y: 44}
   m_EdgeRadius: 0
 --- !u!50 &-38910660230695531
 Rigidbody2D:
@@ -173,7 +173,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2

@@ -152,6 +152,10 @@ PrefabInstance:
       value: Config
       objectReference: {fileID: 0}
     - target: {fileID: 4782123385803635379, guid: d22978d8363f64f8f8ae5d55648422e6, type: 3}
+      propertyPath: NumEnemies
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4782123385803635379, guid: d22978d8363f64f8f8ae5d55648422e6, type: 3}
       propertyPath: EnemyDirectionChangeInterval
       value: 10
       objectReference: {fileID: 0}

@@ -20,7 +20,7 @@ namespace Rogue
         private bool isInitialized = false;
 
         // 碰撞检测相关
-        private Collider2D bulletCollider;
+        private BoxCollider2D bulletCollider;
 
         // 已触发过的物体列表（使用InstanceID避免引用问题）
         private HashSet<int> triggeredObjects = new HashSet<int>();
@@ -28,20 +28,6 @@ namespace Rogue
         private void Awake()
         {
             // 确保有Collider2D组件
-            bulletCollider = GetComponent<BoxCollider2D>();
-            if (bulletCollider == null)
-            {
-                bulletCollider = gameObject.AddComponent<CircleCollider2D>();
-
-                // 设置为触发器
-                bulletCollider.isTrigger = true;
-
-                // 设置合适的半径（可根据需要调整）
-                if (bulletCollider is CircleCollider2D circleCollider)
-                {
-                    circleCollider.radius = 0.1f;
-                }
-            }
         }
 
         /// <summary>
@@ -59,10 +45,33 @@ namespace Rogue
                 Debug.Log($"子弹碰撞处理器初始化: Entity={entity.Index}");
             }
         }
+        // void FixedUpdate()
+        // {
+        //     if (!isInitialized) return;
+        //     Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, bulletCollider.size, 0, LayerMask.GetMask("Enemy"));
+        //     foreach (var hit in hits)
+        //     {
 
-        /// <summary>
-        /// 2D触发器进入事件
-        /// </summary>
+        //         // 获取物体的唯一标识符
+        //         int objectInstanceID = hit.gameObject.GetInstanceID();
+
+        //         // 检查是否已经触发过这个物体
+        //         if (triggeredObjects.Contains(objectInstanceID))
+        //         {
+        //             if (enableDebug)
+        //             {
+        //                 Debug.Log($"子弹已经触发过物体: {hit.name}，跳过处理");
+        //             }
+        //             return;
+        //         }
+
+        //         // 标记这个物体已被触发
+        //         triggeredObjects.Add(objectInstanceID);
+
+        //         // 检查是否碰撞到敌人
+        //         HandleEnemyCollision(hit);
+        //     }
+        // }
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (!isInitialized) return;
@@ -88,11 +97,11 @@ namespace Rogue
             {
                 HandleEnemyCollision(other);
             }
-            // 检查是否碰撞到墙壁或障碍物（墙壁碰撞后停止检测）
-            else if (IsWallCollider(other))
-            {
-                HandleWallCollision(other);
-            }
+            // // 检查是否碰撞到墙壁或障碍物（墙壁碰撞后停止检测）
+            // else if (IsWallCollider(other))
+            // {
+            //     HandleWallCollision(other);
+            // }
         }
 
         /// <summary>
@@ -169,7 +178,7 @@ namespace Rogue
                 BulletEntity = bulletEntity,
                 CollisionType = collisionType,
                 CollisionPosition = collisionPosition,
-                TargetGameObject = target, // 注意：这是托管引用
+                TargetGameObjectHashCode = target.GetHashCode(), // 注意：这是托管引用
             });
 
             if (enableDebug)
@@ -234,13 +243,13 @@ namespace Rogue
         public Entity BulletEntity;
         public BulletCollisionType CollisionType;
         public float3 CollisionPosition;
-        public GameObject TargetGameObject; // 托管引用
-        public BulletCollisionEvent(Entity bulletEntity, BulletCollisionType collisionType, float3 collisionPosition, GameObject targetGameObject)
+        public int TargetGameObjectHashCode; // 托管引用
+        public BulletCollisionEvent(Entity bulletEntity, BulletCollisionType collisionType, float3 collisionPosition, int targetGameObjectHashCode)
         {
             BulletEntity = bulletEntity;
             CollisionType = collisionType;
             CollisionPosition = collisionPosition;
-            TargetGameObject = targetGameObject;
+            TargetGameObjectHashCode = targetGameObjectHashCode;
         }
         public BulletCollisionEvent()
         {

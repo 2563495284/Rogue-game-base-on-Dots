@@ -138,19 +138,19 @@ namespace Rogue
             int validEnemies = 0;
 
             // 查询所有带血量的敌人（使用GPU Instance标记）
-            foreach (var (enemy, health, transform, entity) in
-                     SystemAPI.Query<RefRO<Enemy>, RefRO<EnemyHealth>, RefRO<LocalTransform>>()
+            foreach (var (enemy, health, transform, tag, entity) in
+                     SystemAPI.Query<RefRO<Enemy>, RefRO<EnemyHealth>, RefRO<LocalTransform>, RefRW<HealthBarInstancedTag>>()
                          .WithAll<HealthBarInstancedTag>()
                          .WithEntityAccess())
             {
                 totalEnemies++;
-                var tag = SystemAPI.GetComponent<HealthBarInstancedTag>(entity);
-                tag.UpdateElapseTime(SystemAPI.Time.DeltaTime);
+                tag.ValueRW.UpdateElapseTime(SystemAPI.Time.DeltaTime);
+                SystemAPI.SetComponent(entity, tag.ValueRW);
                 // 检查血量是否需要显示
-                if (health.ValueRO.CurrentHealth >= health.ValueRO.MaxHealth || health.ValueRO.IsDead)
+                if (health.ValueRO.IsDead)
                     continue;
 
-                if (tag.bCull)
+                if (tag.ValueRO.bCull)
                     continue;
 
                 validEnemies++;
@@ -159,13 +159,13 @@ namespace Rogue
                 float3 healthBarWorldPos = worldPos + new float3(0, renderConfig.yOffset, 0);
 
                 // 距离剔除
-                float distance = math.distance(cameraPosition, healthBarWorldPos);
+                // float distance = math.distance(cameraPosition, healthBarWorldPos);
                 // if (renderConfig.useDistanceCulling && distance > renderConfig.maxRenderDistance)
                 //     continue;
 
                 // 计算屏幕坐标
                 Vector3 screenPos = mainCamera.WorldToScreenPoint(healthBarWorldPos);
-                if (screenPos.z <= 0) continue; // 在相机后面
+                // if (screenPos.z <= 0) continue; // 在相机后面
 
                 // 计算透明度（基于距离）
 
@@ -179,7 +179,7 @@ namespace Rogue
                         0
                     ),
                     positionData = new float4(worldPos, 1.0f),
-                    colorOverride = GetHealthColor(health.ValueRO.HealthPercentage, tag.HpAlpha),
+                    colorOverride = GetHealthColor(health.ValueRO.HealthPercentage, tag.ValueRO.HpAlpha),
                     uiTransform = new float4(screenPos.x, screenPos.y, renderConfig.healthBarWidth, renderConfig.healthBarHeight)
                 };
 
@@ -189,23 +189,10 @@ namespace Rogue
                 instanceMatrices.Add(Matrix4x4.identity);
 
             }
-
-            // 调试信息
-            if (totalEnemies > 0)
-            {
-                Debug.Log($"Health Bar Debug: Found {totalEnemies} enemies with tag, {validEnemies} valid for rendering, {instanceData.Length} final instances");
-            }
         }
 
         private void RenderHealthBarBatches()
         {
-            if (instanceData.Length == 0)
-            {
-                Debug.LogWarning("No health bar instances to render");
-                return;
-            }
-
-            Debug.Log($"Rendering {instanceData.Length} health bar instances in batches");
 
             // 分批渲染
             for (int i = 0; i < instanceData.Length; i += MAX_INSTANCES_PER_BATCH)

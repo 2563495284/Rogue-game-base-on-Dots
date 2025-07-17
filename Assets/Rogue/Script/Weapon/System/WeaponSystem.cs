@@ -142,6 +142,7 @@ namespace Rogue
             var angle = 2 * math.PI / weaponCount * weapon.Index;
             var newAngle = angle + speed * (float)elapsedTime;
             transform.Position.xy = playerPos + new float2(math.cos(newAngle), math.sin(newAngle)) * radius;
+            transform.Position.z = 0;
         }
     }
 

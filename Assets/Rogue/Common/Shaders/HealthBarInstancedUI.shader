@@ -83,7 +83,7 @@ Shader "Custom/HealthBarInstancedUI"
                 float2 size = uiTransform.zw;
                 
                 // 顶点变换
-                float2 localPos = (v.vertex.xy - 0.5) * size;
+                float2 localPos = (v.vertex.xy) * size;
                 float2 finalScreenPos = screenPos + localPos;
                 
                 // 转换为NDC坐标
@@ -125,10 +125,11 @@ Shader "Custom/HealthBarInstancedUI"
                 
                 // 颜色混合
                 float4 finalColor = _BackgroundColor;
-                float4 healthColor = lerp(_HealthColor, colorOverride, colorOverride.a);
+                float4 healthColor =float4(colorOverride.rgb,1);
                 finalColor = lerp(finalColor, healthColor, healthMask * healthBarMask);
                 finalColor = lerp(finalColor, _BorderColor, borderMask * (1.0 - healthBarMask));
                 finalColor.a *= borderMask;
+                finalColor.a *= colorOverride.a;
                 
                 return finalColor;
             }

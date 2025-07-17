@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace Rogue
 {
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(BulletSpawnSystem))]
     public partial struct BulletAnimationSystem : ISystem
     {
         [BurstCompile]
@@ -60,7 +62,8 @@ namespace Rogue
             }
             // 初始化碰撞处理器
             collisionHandler.Initialize(m_Entity);
-
+            var animator = bulletAnimation.AnimatedGO.GetComponent<Animator>();
+            animator.Play("Bullet0Animation");
             ecb.AddComponent(m_Entity, bulletAnimation);
         }
         public void Update(ref SystemState state, ref EntityCommandBuffer ecb, in BulletAnimation bulletAnimation)
@@ -122,7 +125,6 @@ namespace Rogue
             // 销毁DOTS实体
             ecb.DestroyEntity(bulletEntity);
 
-            Debug.Log($"子弹销毁: Entity={bulletEntity.Index}");
         }
     }
 }

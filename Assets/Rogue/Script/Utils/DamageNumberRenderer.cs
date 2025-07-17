@@ -282,7 +282,7 @@ namespace Rogue
                 ),
                 lifetime = damageNumberLifetime,
                 currentTime = 0f,
-                scale = GetStyleScale(style),
+                scale = 0.6f,//GetStyleScale(style),
                 style = style
             };
 
@@ -357,7 +357,7 @@ namespace Rogue
             for (int i = 0; i < damageNumbers.Length; i++)
             {
                 var damageData = damageNumbers[i];
-
+                var scale = damageData.scale;
                 // 将伤害数字转换为字符串
                 string damageStr = ((int)damageData.damage).ToString();
 
@@ -371,7 +371,7 @@ namespace Rogue
                     int number = (int)damageData.style * 10 + d;
                     if (!digitSizeMap.TryGetValue(number, out float2 size)) size = new float2(0, 0);
 
-                    totalWidth += size.x;
+                    totalWidth += size.x * scale;
                 }
                 float cursorX = damageData.worldPosition.x - totalWidth * 0.5f;
 
@@ -385,14 +385,14 @@ namespace Rogue
                     int number = (int)damageData.style * 10 + digit;
                     if (!digitSizeMap.TryGetValue(number, out float2 size)) size = new float2(0, 0);
 
-                    float widthWorld = size.x;
+                    float widthWorld = size.x * scale;
                     float centerX = cursorX + widthWorld * 0.5f;
 
                     var textTRS = new TextTRS
                     {
                         digitIndex = digit,
                         styleIndex = (int)damageData.style,
-                        size = size,
+                        size = size * scale,
                         wpos = new float2(centerX, damageData.worldPosition.y),
                     };
                     textTRSData.Add(textTRS);

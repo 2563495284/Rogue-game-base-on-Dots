@@ -45,35 +45,6 @@ namespace Rogue
             transformRW.ValueRW.Position.xy += new float2(inputDir.x, inputDir.y) * movementRW.ValueRO.Speed * deltaTime;
             // TransformUtils.SyncTransform(controller.ControllerGO.transform, transformRW.ValueRO);
             controller.ControllerGO.transform.position = transformRW.ValueRO.Position;
-
-
-            // 面向移动方向
-            // if (math.lengthsq(inputDir) > 1e-4f)
-            // {
-            //     var lookDir = math.normalize(new float3(inputDir.x, 0, 0));
-            //     transformRW.ValueRW.Rotation = quaternion.LookRotation(lookDir, math.back());
-            // }
-            // 持续同步Transform和动画状态
-            if (state.EntityManager.HasComponent<PlayerAnimation>(player))
-            {
-                var playerAnimation = state.EntityManager.GetComponentObject<PlayerAnimation>(player);
-                var transform = SystemAPI.GetComponent<LocalTransform>(player);
-
-                // 完整的Transform同步
-                // TransformUtils.SyncTransform(playerAnimation.AnimatedGO.transform, transform);
-                playerAnimation.AnimatedGO.transform.position = transformRW.ValueRO.Position;
-
-                // 动画状态同步
-                var animator = playerAnimation.AnimatedGO.GetComponent<Animator>();
-                if (animator != null)
-                {
-                    // 检查玩家是否有移动输入
-                    bool isMoving = controller.ControllerGO.GetComponent<PlayerController>().IsMoving;
-                    // 设置动画参数
-                    var isMovingId = Animator.StringToHash("bRunning");
-                    animator.SetBool(isMovingId, isMoving);
-                }
-            }
         }
     }
 }
