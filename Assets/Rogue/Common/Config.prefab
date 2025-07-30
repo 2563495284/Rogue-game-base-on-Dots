@@ -48,7 +48,7 @@ MonoBehaviour:
   PlayerPrefabGO: {fileID: 943049589341152679, guid: b35f64339c173944cbcb1848e1e0d8be, type: 3}
   PlayerAnimatedPrefabGO: {fileID: 7100645380113196838, guid: 6c9be4e421e0c5e4692b0a6d059bbe6a, type: 3}
   PlayerControllerGO: {fileID: 7100645380113196838, guid: 39b7c73342b7849608b4096b4cfc8e40, type: 3}
-  NumEnemies: 50
+  NumEnemies: 20
   EnemySpawnAreaSize: 400
   EnemyMoveSpeed: 0
   EnemyDirectionChangeInterval: 5

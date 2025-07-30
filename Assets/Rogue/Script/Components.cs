@@ -38,27 +38,4 @@ namespace Rogue
         }
     }
 
-    // 空间划分相关组件
-    public struct SpatialPartitioningComponent : IComponentData
-    {
-        public float2 Position;
-        public float Radius;
-        public bool IsActive;
-    }
-
-    public struct CollisionComponent : IComponentData
-    {
-        public float2 Position;
-        public float Radius;
-        public Entity Owner;
-    }
-
-    public struct CollisionEvent : IComponentData
-    {
-        public Entity EntityA;
-        public Entity EntityB;
-        public float2 CollisionPoint;
-        public float PenetrationDepth;
-    }
-
 }
